@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS contracts;
+DROP TABLE IF EXISTS learndb;
+
+CREATE TABLE contracts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL, 
+    response TEXT, 
+    userid TEXT NOT NULL DEFAULT "admin"
+);
+
+CREATE TABLE learndb (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    keywords TEXT,
+    statements TEXT
+);

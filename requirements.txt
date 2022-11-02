@@ -1,0 +1,6 @@
+pandas
+google-cloud-aiplatform
+google-cloud-automl
+protobuf
+werkzeug
+Flask

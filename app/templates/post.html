@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Contract Analysis {% endblock %}</h1>
+
+{% autoescape false %}
+    <h4>Title : {{ post['title'] }} </h4>
+    <h4>Content : </h4>{{ post['response'] }} 
+    <br><b>Date : </b>{{ post['created'] }}
+    <br><b>User : </b>{{ post['userid'] }}
+{% endautoescape %}
+{% endblock %}
