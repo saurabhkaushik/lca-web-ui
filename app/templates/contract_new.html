@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{% block title %} Process your Contract {% endblock %}</h1>
 
-<form method="post">
+<form method="post" action="{{ url_for('contract_new') }}">
     <div class="form-group">
         <label for="content">Title</label>
         <textarea name="title" placeholder="Write the title"

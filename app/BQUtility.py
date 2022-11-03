@@ -84,8 +84,8 @@ class BQUtility:
         print("Deleted dataset '{}'.".format(self.dataset_id))
 
     # Contracts CRUD 
-    def get_contracts(self): 
-        uuid_query = "SELECT * from " + self.table_id1
+    def get_contracts(self, page=50): 
+        uuid_query = "SELECT * from " + self.table_id1 + " Limit " + str(page)
         query_job = self.client.query(uuid_query)  # Make an API request.
         results = query_job.result()  # Wait for the job to complete. 
         return results
@@ -101,6 +101,7 @@ class BQUtility:
             "\', title = \'" + title + "\', content = \'" + content + "\' where id = \'" + id + "\'"
         print (uuid_query)
         query_job = self.client.query(uuid_query)  # Make an API request.
+        #print (query_job)
         #results = "null" #query_job.result()  # Wait for the job to complete. 
         return 
 

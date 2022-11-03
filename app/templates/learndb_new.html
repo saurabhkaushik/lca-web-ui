@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{% block title %} Add Learning Keywords and Statements {% endblock %}</h1>
+<h1>{% block title %} Add Learning Data {% endblock %}</h1>
 
-<form method="post" action="{{ url_for('improve') }}">
+<form method="post" action="{{ url_for('learndb_save') }}">
     <div class="form-group">
         <label for="content">Keywords</label>
         <textarea name="keywords" placeholder="Write the keywords"
@@ -15,13 +15,14 @@
                   class="form-control">{{ request.form['statements'] }}</textarea>
     </div> 
     <div class="form-group">
+        <label for="content">Label</label>
+        <textarea name="label" placeholder="Write the statements"
+                  class="form-control">{{ request.form['label'] }}</textarea>
+    </div> 
+    <div class="form-group">
         <button type="submit" class="btn btn-primary">Submit</button>
     </div>
 </form>
-
-<a href="{{ url_for('improve_list') }}">
-    <h4>View Improve List </h4>
-</a>
 
 {% endblock %}
 

@@ -3,7 +3,7 @@
 {% block content %}
 <h2>{% block title %} Edit Contract :  "{{ post['title'] }}" {% endblock %}</h2>
 
-<form method="post">
+<form method="post" action="{{ url_for('contract_edit', id=post['id']) }}">
     <div class="form-group">
         <label for="title">Contract Title</label>
         <input type="text" name="title" placeholder="Post Case Summary"
@@ -22,7 +22,7 @@
     </div>
 </form>
 <hr>
-<form action="{{ url_for('delete', id=post['id']) }}" method="POST">
+<form action="{{ url_for('contract_delete', id=post['id']) }}" method="POST">
     <input type="submit" value="Delete Post"
             class="btn btn-danger btn-sm"
             onclick="return confirm('Are you sure you want to delete this post?')">

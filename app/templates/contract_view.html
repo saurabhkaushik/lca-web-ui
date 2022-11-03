@@ -5,7 +5,8 @@
 
 {% autoescape false %}
     <h4>Title : {{ post['title'] }} </h4>
-    <h4>Content : </h4>{{ post['response'] }} 
+    <h4>Contract : </h4>{{ post['content'] }} 
+    <h4>Processed : </h4>{{ post['response'] }} 
     <br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
 {% endautoescape %}

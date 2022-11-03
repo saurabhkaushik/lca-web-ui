@@ -6,7 +6,7 @@
     {% for post in posts %}        
         <tr>
             <td>
-                <a href="{{ url_for('post', post_id=post['id']) }}">
+                <a href="{{ url_for('contract_view', post_id=post['id']) }}">
                     <h4>{{ post['title'] }}</h4>
                 </a> 
             </td>
@@ -14,12 +14,12 @@
                 <span class="badge badge-primary">{{ post['created'] }}</span>
             </td>
             <td>
-                <a href="{{ url_for('edit', id=post['id']) }}">
+                <a href="{{ url_for('contract_edit', id=post['id']) }}">
                     <span class="badge badge-warning">Edit</span>
                 </a>
             </td>
             <td>
-                <form action="{{ url_for('analyse', id=post['id']) }}" method="POST">
+                <form action="{{ url_for('contract_analyse', id=post['id']) }}" method="POST">
                     <input type="submit" value="Analyse"
                             class="btn btn-danger btn-sm" >
                 </form>

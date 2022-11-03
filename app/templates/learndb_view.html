@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{% block title %} Added Learning Data {% endblock %}</h1>
+
+{% autoescape false %}
+    <br><b>Keywords : </b>{{ post['keywords'] }} 
+    <br><b>Statements : </b>{{ post['statements'] }} 
+    <br><b>Label : </b>{{ post['label'] }} 
+    <br><b>Date : </b>{{ post['created'] }}
+{% endautoescape %}
+
+{% endblock %}
