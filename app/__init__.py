@@ -1,10 +1,9 @@
-import sqlite3, logging
+import logging
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort   
 from flask import make_response, jsonify
 import requests
-from app.DBUtility import DBUtility
-from app.BQUtility import BQUtility
+from app.MySQLUtility import MySQLUtility
 
 ai_service_url = 'http://127.0.0.1:8081/' # "http://172.19.0.2:8081" 
 classify_url = ai_service_url + "/classify_service"
@@ -16,7 +15,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     apps.debug = debug
     apps.testing = testing
         
-    dbutil = BQUtility() 
+    dbutil = MySQLUtility() 
 
     if config_overrides:
         apps.config.update(config_overrides)
@@ -64,7 +63,10 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 print("Response :", answer)
                 if answer: 
                     answer = highlight_text(content, answer)
-                    post_id = dbutil.save_contracts(title, content, str(answer))   
+                    batch_insert = [] 
+                    insert_json =  {"title" : title, "content" : content,  "type" : "users", "response" : answer, "domain" : "liability", "userid" : "admin"} 
+                    batch_insert.append(insert_json)
+                    post_id = dbutil.save_contracts_batch(batch_insert)   
                     post = dbutil.get_contracts_id(post_id)
                     for pst in post:
                         post = pst
@@ -136,43 +138,46 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 return render_template('contract_view.html', post=post)
         return redirect(url_for('contracts_list'))
 
-    @apps.route('/learndb_new', methods=('GET', 'POST'))
-    def learndb_new():
-        return render_template('learndb_new.html')
+    @apps.route('/seed_data_new', methods=('GET', 'POST'))
+    def seed_data_new():
+        return render_template('seed_data_new.html')
 
-    @apps.route('/learndb_save', methods=('GET', 'POST'))
-    def learndb_save():
+    @apps.route('/seed_data_save', methods=('GET', 'POST'))
+    def seed_data_save():
         if request.method == 'POST':
             keywords = request.form['keywords']
-            statements = request.form['statements']
+            content = request.form['content']
             label = request.form['label']
-            print("contract : ", statements)
-            if not statements or not label: 
-                flash('statements and label are required!')
+            print("contract : ", content)
+            if not content or not label: 
+                flash('content and label are required!')
                 return
             else:
-                post_id = dbutil.save_learndb(keywords, statements, label)    
-                post = dbutil.get_learndb_id(post_id)
+                batch_insert = [] 
+                insert_json = {"keywords" : keywords, "content" : content, "label" : label, "type" : 'users', "domain" : 'liability', "userid" : 'admin'}
+                batch_insert.append(insert_json)
+                post_id = dbutil.save_seed_data_batch(batch_insert)    
+                post = dbutil.get_seed_data_id(post_id)
                 for pst in post:
                     post = pst
-                return render_template('learndb_view.html', post=post)
+                return render_template('seed_data_view.html', post=post)
 
         return render_template('index.html')
 
-    @apps.route('/learndb_list', methods=('GET', 'POST'))
-    def learndb_list():
-        posts = dbutil.get_learndb()
-        return render_template('learndb_list.html', posts=posts)
+    @apps.route('/seed_data_list', methods=('GET', 'POST'))
+    def seed_data_list():
+        posts = dbutil.get_seed_data()
+        return render_template('seed_data_list.html', posts=posts)
 
-    @apps.route('/<string:id>/learndb_delete', methods=('POST',))
-    def learndb_delete(id):
-        post = dbutil.get_learndb_id(id)
+    @apps.route('/<string:id>/seed_data_delete', methods=('POST',))
+    def seed_data_delete(id):
+        post = dbutil.get_seed_data_id(id)
         for pst in post:
             post = pst
         print('Deleted Post:', post['keywords'])
-        dbutil.delete_learndb_id(id)
+        dbutil.delete_seed_data_id(id)
         
-        return redirect(url_for('learndb_list'))
+        return redirect(url_for('seed_data_list'))
 
     @apps.route('/admin')
     def admin():

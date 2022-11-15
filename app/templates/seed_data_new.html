@@ -3,20 +3,20 @@
 {% block content %}
 <h1>{% block title %} Add Learning Data {% endblock %}</h1>
 
-<form method="post" action="{{ url_for('learndb_save') }}">
+<form method="post" action="{{ url_for('seed_data_save') }}">
     <div class="form-group">
         <label for="content">Keywords</label>
         <textarea name="keywords" placeholder="Write the keywords"
                   class="form-control">{{ request.form['keywords'] }}</textarea>
     </div> 
     <div class="form-group">
-        <label for="content">Statements</label>
-        <textarea name="statements" placeholder="Write the statements"
-                  class="form-control">{{ request.form['statements'] }}</textarea>
+        <label for="content">Content</label>
+        <textarea name="content" placeholder="Write the content"
+                  class="form-control">{{ request.form['content'] }}</textarea>
     </div> 
     <div class="form-group">
         <label for="content">Label</label>
-        <textarea name="label" placeholder="Write the statements"
+        <textarea name="label" placeholder="Write the label"
                   class="form-control">{{ request.form['label'] }}</textarea>
     </div> 
     <div class="form-group">

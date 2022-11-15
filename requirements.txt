@@ -4,3 +4,4 @@ google-cloud-automl
 protobuf
 werkzeug
 Flask
+mysql-connector-python
