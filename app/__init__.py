@@ -1,13 +1,13 @@
 import logging
-from flask import Flask, render_template, request, url_for, flash, redirect
-from werkzeug.exceptions import abort   
-from flask import make_response, jsonify
+
 import requests
+from flask import (Flask, flash, jsonify, make_response, redirect,
+                   render_template, request, url_for)
+
 from app.MySQLUtility import MySQLUtility
 
 ai_service_url = 'http://127.0.0.1:8081/' # "http://172.19.0.2:8081" 
 classify_url = ai_service_url + "/classify_service"
-db_file_url = '/Users/saurabhkaushik/Workspace/lca-web-ui/database.db'
 
 def create_app(config, debug=False, testing=False, config_overrides=None):
     apps = Flask(__name__)

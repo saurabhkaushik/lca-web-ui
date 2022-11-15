@@ -1,9 +1,9 @@
-import mysql.connector
-
-from mysql.connector.constants import ClientFlag 
-import os
 import datetime
+import os
 import uuid
+
+import mysql.connector
+from mysql.connector.constants import ClientFlag
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './store/genuine-wording-key.json'
 
@@ -144,8 +144,10 @@ class MySQLUtility:
         insert_stmt = ("INSERT INTO contract_data (id, created, title, content, type, response, domain, userid) "
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
         for row in batch_data:
-            uu_id = str(uuid.uuid4())                
-            insert_str =  (uu_id, "2022-01-01 01:01", row['title'], row['content'], row['type'], row['response'], row['domain'], row['userid'])               
+            uu_id = str(uuid.uuid4())   
+            title = cnxn.escape_string(row['title'])
+            content = cnxn.escape_string(row['content'])             
+            insert_str =  (uu_id, "2022-01-01 01:01", title, content, row['type'], row['response'], row['domain'], row['userid'])               
             rows_to_insert.append(insert_str)
         
         cursor.executemany(insert_stmt, rows_to_insert)
@@ -158,6 +160,9 @@ class MySQLUtility:
     def update_contracts_id(self, id, title, content, response): 
         cnxn = mysql.connector.connect(**config2)
         cursor = cnxn.cursor() 
+        title = cnxn.escape_string(title)
+        content = cnxn.escape_string(content)  
+        response = cnxn.escape_string(response)
 
         uuid_query = "UPDATE " + self.table_id1 + " SET response = \'" + response + \
             "\', title = \'" + title + "\', content = \'" + content + "\' where id = \'" + id + "\'"

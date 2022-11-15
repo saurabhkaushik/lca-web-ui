@@ -1,7 +1,4 @@
 pandas
-google-cloud-aiplatform
-google-cloud-automl
-protobuf
-werkzeug
 Flask
 mysql-connector-python
+requests 
