@@ -5,13 +5,13 @@
 
 <form method="post" action="{{ url_for('contract_new') }}">
     <div class="form-group">
-        <label for="content">Title</label>
-        <textarea name="title" placeholder="Write the title"
-                  class="form-control">{{ request.form['title'] }}</textarea>
+        <label for="content"><b>Title</b></label>
+        <input type="text" name="title" placeholder="Write the title" maxlength="200"
+                  class="form-control">{{ request.form['title'] }}</input>
     </div> 
     <div class="form-group">
-        <label for="content">Contract</label>
-        <textarea name="content" placeholder="Copy the contract"
+        <label for="content"><b>Contract</b></label>
+        <textarea name="content" placeholder="Copy the contract" rows="20" cols="50" maxlength="10000"
                   class="form-control">{{ request.form['content'] }}</textarea>
     </div> 
     <div class="form-group">

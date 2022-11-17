@@ -6,7 +6,7 @@
 <form method="post" action="{{ url_for('contract_edit', id=post['id']) }}">
     <div class="form-group">
         <label for="title">Contract Title</label>
-        <input type="text" name="title" placeholder="Post Case Summary"
+        <input type="text" name="title" placeholder="Post Case Summary" rows="1" cols="50" maxlength="200"
                class="form-control"
                value="{{ post['title'] }}">
         </input>
@@ -14,7 +14,7 @@
 
     <div class="form-group">
         <label for="content">Contract Details</label>
-        <textarea name="content" placeholder="Post content"
+        <textarea name="content" placeholder="Post content" rows="20" cols="50" maxlength="10000"
                   class="form-control">{{ request.form['content'] or post['content'] }}</textarea>
     </div>
     <div class="form-group">

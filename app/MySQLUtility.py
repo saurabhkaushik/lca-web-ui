@@ -145,8 +145,8 @@ class MySQLUtility:
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
         for row in batch_data:
             uu_id = str(uuid.uuid4())   
-            title = cnxn.escape_string(row['title'])
-            content = cnxn.escape_string(row['content'])             
+            title = row['title']
+            content = row['content']          
             insert_str =  (uu_id, "2022-01-01 01:01", title, content, row['type'], row['response'], row['domain'], row['userid'])               
             rows_to_insert.append(insert_str)
         
@@ -160,14 +160,12 @@ class MySQLUtility:
     def update_contracts_id(self, id, title, content, response): 
         cnxn = mysql.connector.connect(**config2)
         cursor = cnxn.cursor() 
-        title = cnxn.escape_string(title)
-        content = cnxn.escape_string(content)  
-        response = cnxn.escape_string(response)
 
-        uuid_query = "UPDATE " + self.table_id1 + " SET response = \'" + response + \
-            "\', title = \'" + title + "\', content = \'" + content + "\' where id = \'" + id + "\'"
-        print (uuid_query)
-        cursor.execute(uuid_query)
+        uuid_query = "UPDATE " + self.table_id1 + " SET response = %s, title = %s, content = %s where id = %s;"
+        val = (response, title, content, id)
+
+        print ('Query: ', uuid_query)
+        cursor.execute(uuid_query, val)
 
         cnxn.commit()
         cnxn.close()
@@ -179,7 +177,7 @@ class MySQLUtility:
         cursor = cnxn.cursor() 
 
         uuid_query = "Delete from " + self.table_id1 + " where id = \'" + id + "\'"
-        print (uuid_query)
+        print ('Query: ', uuid_query)
         cursor.execute(uuid_query)
 
         cnxn.commit()
@@ -193,7 +191,7 @@ class MySQLUtility:
         cursor = cnxn.cursor(dictionary=True)  
 
         uuid_query = "SELECT * from " + self.table_id2
-        print (uuid_query)
+        print ('Query: ', uuid_query)
         cursor.execute(uuid_query)
         results = cursor.fetchall()
 
@@ -205,7 +203,7 @@ class MySQLUtility:
         cursor = cnxn.cursor(dictionary=True)  
 
         uuid_query = "SELECT * from " + self.table_id2 + " where id = \'" + id + "\'"
-        print (uuid_query)
+        print ('Query: ', uuid_query)
         cursor.execute(uuid_query)
         results = cursor.fetchall()
 
@@ -228,21 +226,22 @@ class MySQLUtility:
 
         cnxn.commit()
         cnxn.close()
-        print(cursor.rowcount, "record(s) affected")
+        print('Query: ', cursor.rowcount, "record(s) affected")
         return uu_id 
 
     def update_seed_data_id(self, id, keywords): 
         cnxn = mysql.connector.connect(**config2)
         cursor = cnxn.cursor()  
 
-        uuid_query = "UPDATE " + self.table_id2 + " SET keywords = \'" + keywords + \
-            "\' where id = \'" + id + "\'"
-        print (uuid_query)
-        cursor.execute(uuid_query)
+        uuid_query = "UPDATE " + self.table_id2 + " SET keywords = %s where id = %s;"
+        val = (keywords, id)
+        print ('Query: ', uuid_query)
+
+        cursor.execute(uuid_query, val)
 
         cnxn.commit()
         cnxn.close()
-        print(cursor.rowcount, "record(s) affected")
+        print('Query: ', cursor.rowcount, "record(s) affected")
         return None
 
     def update_seed_data_batch(self, batch_data): 
@@ -256,12 +255,12 @@ class MySQLUtility:
             insert_stmt =  (row['keywords'], row['id'])               
             rows_to_insert.append(insert_stmt)
 
-        print (rows_to_insert)
+        print ('Query: ', rows_to_insert)
         cursor.executemany(uuid_query, rows_to_insert)
 
         cnxn.commit()
         cnxn.close()
-        print(cursor.rowcount, "record(s) affected")
+        print('Query: ', cursor.rowcount, "record(s) affected")
         return None 
 
     def delete_seed_data_id(self, id): 
@@ -269,12 +268,12 @@ class MySQLUtility:
         cursor = cnxn.cursor()  
 
         uuid_query = "Delete from " + self.table_id2 + " where id = \'" + id + "\'"
-        print (uuid_query)
+        print ('Query: ', uuid_query)
         cursor.execute(uuid_query)
 
         cnxn.commit()
         cnxn.close()
-        print(cursor.rowcount, "record(s) affected")
+        print('Query: ', cursor.rowcount, "record(s) affected")
         return None
 
     # Training Data CRUD 
@@ -285,7 +284,7 @@ class MySQLUtility:
         uuid_query = "SELECT * from " + self.table_id3 
         if not type == "all":
             uuid_query = "SELECT * from " + self.table_id3 + " where type=\'" + type + "\'"
-        print(uuid_query)
+        print('Query: ', uuid_query)
         cursor.execute(uuid_query)
         results = cursor.fetchall()
 
@@ -297,7 +296,7 @@ class MySQLUtility:
         cursor = cnxn.cursor(dictionary=True)  
 
         uuid_query = "SELECT * from " + self.table_id3 + " where id = \'" + id + "\'"
-        print (uuid_query)
+        print ('Query: ', uuid_query)
         cursor.execute(uuid_query)
         results = cursor.fetchall()
 
@@ -320,7 +319,7 @@ class MySQLUtility:
 
         cnxn.commit()
         cnxn.close()
-        print(cursor.rowcount, "record(s) affected")
+        print('Query: ', cursor.rowcount, "record(s) affected")
         return None 
     
     def update_training_data_batch(self, batch_data): 
@@ -349,10 +348,10 @@ class MySQLUtility:
         cursor = cnxn.cursor()  
 
         uuid_query = "Delete from " + self.table_id3 + " where id = \'" + id + "\'"
-        print (uuid_query)
+        print ('Query: ', uuid_query)
         cursor.execute(uuid_query)
 
         cnxn.commit()
         cnxn.close()
-        print(cursor.rowcount, "record(s) affected")
+        print('Query: ', cursor.rowcount, "record(s) affected")
         return None

@@ -5,6 +5,7 @@ from flask import (Flask, flash, jsonify, make_response, redirect,
                    render_template, request, url_for)
 
 from app.MySQLUtility import MySQLUtility
+from app.Highlight_Service import Highlight_Service
 
 ai_service_url = 'http://127.0.0.1:8081/' # "http://172.19.0.2:8081" 
 classify_url = ai_service_url + "/classify_service"
@@ -16,6 +17,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     apps.testing = testing
         
     dbutil = MySQLUtility() 
+    highservice = Highlight_Service()
 
     if config_overrides:
         apps.config.update(config_overrides)
@@ -47,30 +49,37 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         if request.method == 'POST':
             title = request.form['title']
             content = request.form['content']
-            print("contract : ", content)
+            print("Contract : ", content)
             if not content or not title: 
                 flash('contract and title is required!')
             else:
-                request_data = {
-                    "title": title,
-                    "content": content
-                }
-                response = requests.post(classify_url, json=request_data)
-                print (response.status_code) 
-                print(response.json())
-                answer = response.json()      
+                answer = ''
+                batch_insert = [] 
+                insert_json =  {"title" : title, "content" : content,  "type" : "users", "response" : answer, "domain" : "liability", "userid" : "admin"} 
+                batch_insert.append(insert_json)
+                post_id = dbutil.save_contracts_batch(batch_insert)  
+                                
+                try:
+                    request_data = {
+                        "id": post_id
+                    }
+                    response = requests.post(classify_url, json=request_data)
+                    print ('Response Code: ', response.status_code) 
+                    answer = response.json()    
+                    print("Response : ", answer)
+                except requests.exceptions.ConnectionError as e:
+                    print('LCA AI Service is down', e)
+                if answer == None:
+                    answer = '' 
+                response = highservice.highlight_text(content, answer)
 
-                print("Response :", answer)
-                if answer: 
-                    answer = highlight_text(content, answer)
-                    batch_insert = [] 
-                    insert_json =  {"title" : title, "content" : content,  "type" : "users", "response" : answer, "domain" : "liability", "userid" : "admin"} 
-                    batch_insert.append(insert_json)
-                    post_id = dbutil.save_contracts_batch(batch_insert)   
-                    post = dbutil.get_contracts_id(post_id)
-                    for pst in post:
-                        post = pst
-                    return render_template('contract_view.html', post=post)
+                dbutil.update_contracts_id(post_id, title, content, response)
+
+                post = dbutil.get_contracts_id(post_id)
+                
+                for pst in post:
+                    post = pst
+                return render_template('contract_view.html', post=post)
         return render_template('contract_new.html')
 
     @apps.route('/<string:id>/contract_edit', methods=('GET', 'POST')) 
@@ -112,30 +121,35 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             post = pst
         title = post['title']
         content = post['content']
-        print("contract : ", title, content)
+        print("Contract : ", title, content)
         if not content and not title: 
-            flash('contract is required!')
+            flash('contract and title are required!')
             return render_template('query.html')
         else:
-            request_data = {
-                "title": title,
-                "content": content
-            }
-            response = requests.post(classify_url, json=request_data)
-            #print(response.status_code) 
-            #print(response.json())
-            answer = response.json()      
+            answer = {}                         
+            try:
+                request_data = {
+                    "id": id
+                }
+                response = requests.post(classify_url, json=request_data)
+                print ('Response Code: ', response.status_code) 
+                #print(response.json())
+                answer = response.json()    
+                print("Response JSON :", answer)
+            except requests.exceptions.ConnectionError as e:
+                print('LCA AI Service is down :', e)
+            
+            if answer == None:
+                answer = '' 
+            response = highservice.highlight_text(content, answer)
 
-            print("Response :", answer)
-            if answer: 
-                answer = highlight_text(content, answer)
-                print ("Answer:", answer)
-                dbutil.update_contracts_id(id, title, content, answer)
-          
-                post = dbutil.get_contracts_id(id)
-                for pst in post:
-                    post = pst
-                return render_template('contract_view.html', post=post)
+            dbutil.update_contracts_id(id, title, content, response)
+
+            post = dbutil.get_contracts_id(id)
+            
+            for pst in post:
+                post = pst
+            return render_template('contract_view.html', post=post)
         return redirect(url_for('contracts_list'))
 
     @apps.route('/seed_data_new', methods=('GET', 'POST'))
@@ -182,22 +196,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     @apps.route('/admin')
     def admin():
         return render_template('admin.html')
-
-    def highlight_text(content, hl_index): 
-        processed_text = ""
-        last_index = 0
-        for key in hl_index: 
-            start_index = hl_index[key]["start_index"]
-            end_index = hl_index[key]["end_index"]
-            flag = hl_index[key]["relevence_degree"]            
-            if flag == "HIGH": 
-                processed_text += content[last_index:start_index] + "<mark style=\"color: red;\">" + content[start_index:end_index] + "</mark>" 
-            if flag == "MEDIUM": 
-                processed_text += content[last_index:start_index] + "<mark style=\"color: orange;\">" + content[start_index:end_index] + "</mark>" 
-            if flag == "LOW": 
-                processed_text += content[last_index:start_index] + "<mark style=\"color: yellow;\">" + content[start_index:end_index] + "</mark>" 
-            last_index = hl_index[key]["end_index"]
-        return processed_text
 
     @apps.errorhandler(404)
     def not_found(error):
