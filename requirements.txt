@@ -2,3 +2,4 @@ pandas
 Flask
 mysql-connector-python
 requests 
+waitress

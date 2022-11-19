@@ -5,6 +5,22 @@ h1 {
     padding: 10px;
 }
 
+table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse:collapse; 
+}
+  
+th {
+    border:solid 1px rgb(12, 11, 11); 
+    height: 70px;
+}
+td {
+    border:solid 1px #fab; 
+    width:100px; 
+    word-wrap:break-word;
+}
+
 .tooltip-text {
     visibility: hidden;
     position: absolute;
@@ -42,6 +58,6 @@ h1 {
 
 .hover-text {
     position: relative;
-    display: inline-block;
+    display: inline;
     font-family: Avenir;
 }     

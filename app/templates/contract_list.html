@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>{% block title %} Contract Mgmt. {% endblock %}</h1>
-    <table border="1"> <tr><th>Contract</th><th>Date</th><th>Edit</th><th>Analysis</th><th>Delete</th></tr>
+    <table border="1"> <tr><th>Contract</th><th>Date</th><th>Actions</th></tr>
     {% for post in posts %}        
         <tr>
             <td>
@@ -18,14 +18,10 @@
                     <input type="submit" value="Edit"
                             class="btn btn-danger btn-sm" >
                 </a>
-            </td>
-            <td>
                 <form action="{{ url_for('contract_analyse', id=post['id']) }}" method="POST">
                     <input type="submit" value="Analyse"
                             class="btn btn-danger btn-sm" >
                 </form>
-            </td>
-            <td>
                 <form action="{{ url_for('contract_delete', id=post['id']) }}" method="POST">
                     <input type="submit" value="Delete"
                             class="btn btn-danger btn-sm"
