@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="../static/css/style.css">
     <title>{% block title %} {% endblock %}</title>
   </head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <body>
       <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('index')}}">LCA - UI Service</a>
+        <a class="navbar-brand" href="{{ url_for('index')}}">LCA - UI Service : {{ session['domain'].upper() }}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>

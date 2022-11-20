@@ -8,5 +8,18 @@
     <li>Risk Index Score (RIS) Service</li>
     <li>Liability Analysis Service </li>
     <li>Domain Improvement Service </li>
+    <br>
+    <form method="post" action="{{ url_for('set_domain') }}">
+        <H5> Your current domain is <select name="domain" onchange="this.form.submit();">  
+            {% for domain in session['domains'] :%}  
+                {% if domain == session['domain'] : %}                
+                    <option value='{{ domain }}' selected>{{ domain.upper() }}</option>
+                {% else: %}
+                    <option value='{{ domain }}' >{{ domain.upper() }}</option>
+                {% endif %}
+            {% endfor %}
+        </select> </H5>
+    </form>
+  
 
 {% endblock %}

@@ -60,4 +60,10 @@ td {
     position: relative;
     display: inline;
     font-family: Avenir;
-}     
+}   
+
+.myChartDiv {/*ww  w  .  j  a v  a2s  .co  m*/
+    border: 1px #CCC solid;
+    width: 200px;
+    height: 200px;
+ }
