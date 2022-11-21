@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{% block title %} Contract Analysis {% endblock %}</h1>
+
+{% autoescape false %}
+    <h4>Report Name : {{ post['title'] }} </h4> 
+    <h4>Risk Score : {{ post['score_context_json']['ScoreContext'] }}% </h4>
+    <h4>Contract : </h4>{{ post['response'] }} 
+    <br><b>Date : </b>{{ post['created'] }}
+    <br><b>User : </b>{{ post['userid'] }}
+    <div class="myChartDiv"> 
+        <table> 
+            <tr>
+                <td><canvas id="RiskScoreChart"></canvas></td> 
+                <td><canvas id="RiskDistributionChart"></canvas></td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        const ctx1 = document.getElementById('RiskScoreChart');      
+        new Chart(ctx1, {
+          type: 'doughnut',
+          data: {
+            datasets: [{
+                label: 'Document Risk Score',  
+                data: [parseInt("{{ post['score_context_json']['ScoreContext'] }}"), parseInt("{{ (100 - post['score_context_json']['ScoreContext']) }}")],
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 205, 86)'
+                    ]
+            }],
+            labels: [   
+                'High',
+                'Low'
+            ], 
+         },
+         options: {
+            animation: {
+                duration: 0
+            }
+        }
+        });
+
+        const ctx2 = document.getElementById('RiskDistributionChart');      
+        new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            datasets: [{
+                data: [parseInt("{{ post['score_context_json']['ScoreContextHigh'] }}"), parseInt("{{ post['score_context_json']['ScoreContextMedium'] }}"), , parseInt("{{ post['score_context_json']['ScoreContextLow'] }}")],
+                backgroundColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)'
+                    ]
+            }],
+            labels: [   
+                'High',
+                'Medium',
+                'Low'
+            ], 
+         }
+        });
+    </script>
+{% endautoescape %}
+{% endblock %}

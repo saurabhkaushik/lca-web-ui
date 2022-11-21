@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{% block title %} Contract Mgmt. {% endblock %}</h1>
-    <table border="1"> <tr><th>Contract</th><th>Date</th><th>Actions</th></tr>
+    <h1>{% block title %} Report Management {% endblock %}</h1>
+    <table > 
+        <tr><th>Report</th><th>Date</th><th>Edit</th><TH>Analyse</TH><TH>Delete</TH></tr>
     {% for post in posts %}        
         <tr>
             <td>
                 <a href="{{ url_for('contract_view', post_id=post['id']) }}">
-                    <h4>{{ post['title'] }}</h4>
+                    {{ post['title'] }}
                 </a> 
             </td>
             <td>
@@ -18,10 +19,13 @@
                     <input type="submit" value="Edit"
                             class="btn btn-danger btn-sm" >
                 </a>
+                <TD>
                 <form action="{{ url_for('contract_analyse', id=post['id']) }}" method="POST">
                     <input type="submit" value="Analyse"
                             class="btn btn-danger btn-sm" >
                 </form>
+            </TD>
+            <TD>
                 <form action="{{ url_for('contract_delete', id=post['id']) }}" method="POST">
                     <input type="submit" value="Delete"
                             class="btn btn-danger btn-sm"

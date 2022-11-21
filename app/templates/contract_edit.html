@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>{% block title %} Edit Contract :  "{{ post['title'] }}" {% endblock %}</h2>
+<h2>{% block title %} Edit Reports :  "{{ post['title'] }}" {% endblock %}</h2>
 
 <form method="post" action="{{ url_for('contract_edit', id=post['id']) }}">
     <div class="form-group">

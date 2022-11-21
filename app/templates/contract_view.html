@@ -1,38 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>{% block title %} Contract Analysis {% endblock %}</h1>
+<h1>{% block title %} Report Analysis {% endblock %}</h1>
 
 {% autoescape false %}
     <h4>Title : {{ post['title'] }} </h4> 
-    <h4>Risk Score : {{ post['risk_score'][0] }}% </h4>
-    <div class="myChartDiv"> 
-        <canvas id="myChart"></canvas>
-    </div>
-    
-    <!--- <h4>Contract : </h4>{{ post['content'] }}    ---> 
-    <h4>Contract : </h4>{{ post['response'] }} 
+    <h4>Report : </h4>{{ post['content'] }}  
     <br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
-    <script>
-        const ctx = document.getElementById('myChart');      
-        new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            datasets: [{
-                label: 'Document Risk Score',  
-                data: [parseInt("{{ post['risk_score'][0] }}"), parseInt("{{ post['risk_score'][1] }}")],
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 205, 86)'
-                    ]
-            }],
-            labels: [   
-                'High',
-                'Low'
-            ], 
-            hoverOffset: 4
-         }
-        });
-    </script>
 {% endautoescape %}
 {% endblock %}

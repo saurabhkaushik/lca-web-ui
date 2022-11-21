@@ -1,22 +1,26 @@
 import logging
-
+import os
 import requests
 from flask import (Flask, flash, jsonify, session, make_response, redirect,
                    render_template, request, url_for)
 
 from app.MySQLUtility import MySQLUtility
 from app.Highlight_Service import Highlight_Service
-domains =['liabilities', 'esg']
-app_domain = 'esg' # 'liabilities', 'esg'
 
 def create_app(config, debug=False, testing=False, config_overrides=None):
     apps = Flask(__name__)
-    apps.config.from_object(config)
+    apps.config.from_object(config.DevelopmentConfig)
     apps.debug = debug
     apps.testing = testing
     apps.secret_key = "LCA"  
-
+    
+    domains = apps.config['DOMAINS']
+    app_domain = apps.config['DEFAULT_DOMAINS']
     classify_url = apps.config['AI_SERVICE_URL'] + "/classify_service"
+    google_cert_key = apps.config['GOOGLE_CERT_KEY']
+
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_cert_key
+
     dbutil = MySQLUtility()
     highservice = Highlight_Service()
     
@@ -31,12 +35,12 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
     @apps.route('/')
     def index():        
-        set_domain(session)
+        set_domain()
         return render_template('index.html')
 
     @apps.route('/contract_list')
     def contract_list():
-        s_domain = get_domain(session)
+        s_domain = get_domain()
         posts = dbutil.get_contracts(s_domain)
         return render_template('contract_list.html', posts=posts)
 
@@ -56,7 +60,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
     @apps.route('/contract_new', methods=('GET', 'POST'))
     def contract_new():
-        s_domain = get_domain(session)
+        s_domain = get_domain()
         if request.method == 'POST':
             title = request.form['title']
             content = request.form['content']
@@ -64,38 +68,28 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             if not content or not title:
                 flash('contract and title is required!')
             else:
-                answer = ''
                 batch_insert = []
                 insert_json = {"title": title, "content": content,  "type": "users",
-                               "response": answer, "domain": s_domain, "userid": "admin"}
+                               "response": '', "domain": s_domain, "userid": "admin"}
                 batch_insert.append(insert_json)
-                post_id = dbutil.save_contracts_batch(batch_insert)
+                id = dbutil.save_contracts_batch(batch_insert)
 
-                try:
-                    request_data = {
-                        "id": post_id,
-                        "domain" : s_domain
-                    }
-                    response = requests.post(classify_url, json=request_data)
-                    print('Response Code: ', response.status_code)
-                    answer = response.json()
-                    print("Response : ", answer)
-                except requests.exceptions.ConnectionError as e:
-                    print('LCA AI Service is down', e)
+                answer = get_classify_service_response(id, s_domain)
+
                 if answer == None:
                     answer = ''
-                response, score = highservice.highlight_text(content, answer)
+                response, score_context_json, count_presence_json = highservice.highlight_text(content, answer)
 
-                dbutil.update_contracts_id(post_id, title, content, response)
+                dbutil.update_contracts_id(id, title, content, response)
 
-                post = dbutil.get_contracts_id(post_id)
+                post = dbutil.get_contracts_id(id)
 
                 for pst in post:
                     post = pst
-                post['risk_score'] = [score, (100-score)]
-                #post['risk_score'] = [70, 30]
+                post['score_context_json'] = score_context_json
+                post['count_presence_json'] = count_presence_json
                 print ('Post : ', post)
-                return render_template('contract_view.html', post=post)
+                return render_template('contract_analysis.html', post=post)
         return render_template('contract_new.html')
 
     @apps.route('/<string:id>/contract_edit', methods=('GET', 'POST'))
@@ -132,7 +126,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
     @apps.route('/<string:id>/contract_analyse', methods=('GET', 'POST'))
     def contract_analyse(id):
-        s_domain = get_domain(session)
+        s_domain = get_domain()
         post = dbutil.get_contracts_id(id)
         for pst in post:
             post = pst
@@ -141,34 +135,23 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         print("Contract : ", title, content)
         if not content and not title:
             flash('contract and title are required!')
-            return render_template('query.html')
-        else:
-            answer = {}
-            try:
-                request_data = {
-                    "id": id,
-                    "domain" : s_domain
-                }
-                response = requests.post(classify_url, json=request_data)
-                print('Response Code: ', response.status_code)
-                # print(response.json())
-                answer = response.json()
-                print("Response JSON :", answer)
-            except requests.exceptions.ConnectionError as e:
-                print('LCA AI Service is down :', e)
+            return render_template('contract_list.html')
+        else:            
+            answer = get_classify_service_response(id, s_domain)
 
             if answer == None:
                 answer = ''
-            response, score = highservice.highlight_text(content, answer)
-
+            response, score_context_json, count_presence_json = highservice.highlight_text(content, answer)
+            
             dbutil.update_contracts_id(id, title, content, response)
 
             post = dbutil.get_contracts_id(id)
 
             for pst in post:
                 post = pst
-            post['risk_score'] = [score, (100-score)]
-            return render_template('contract_view.html', post=post)
+            post['score_context_json'] = score_context_json
+            post['count_presence_json'] = count_presence_json
+            return render_template('contract_analysis.html', post=post)
         return redirect(url_for('contracts_list'))
 
     @apps.route('/seed_data_new', methods=('GET', 'POST'))
@@ -178,7 +161,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     @apps.route('/seed_data_save', methods=('GET', 'POST'))
     def seed_data_save():
         if request.method == 'POST':
-            s_domain = get_domain(session)
+            s_domain = get_domain()
             keywords = ''
             content = request.form['content']
             label = request.form['label']
@@ -196,12 +179,11 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 for pst in post:
                     post = pst
                 return render_template('seed_data_view.html', post=post)
-
         return render_template('index.html')
 
     @apps.route('/seed_data_list', methods=('GET', 'POST'))
     def seed_data_list():
-        s_domain = get_domain(session)
+        s_domain = get_domain()
         posts = dbutil.get_seed_data(s_domain)
         return render_template('seed_data_list.html', posts=posts)
 
@@ -215,7 +197,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
         return redirect(url_for('seed_data_list'))
 
-    def get_domain(session): 
+    def get_domain(): 
         if 'domain' in session: 
             s_domain = session['domain']
         else: 
@@ -223,7 +205,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         print ('Domain : ', s_domain)
         return s_domain
 
-    def set_domain(session):  
+    def set_domain():  
         session['domains'] = domains    
         try:   
             if session['domain'] == None:
@@ -231,6 +213,22 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         except KeyError: 
             session['domain'] = app_domain 
         return None
+    
+    def get_classify_service_response(id, s_domain):
+        answer = {}
+        try:
+            request_data = {
+                "id": id,
+                "domain" : s_domain
+            }
+            response = requests.post(classify_url, json=request_data)
+            print('Response Code: ', response.status_code)
+            # print(response.json())
+            answer = response.json()
+            print("Response JSON :", answer)
+        except requests.exceptions.ConnectionError as e:
+            print('LCA AI Service is down :', e)
+        return answer
 
     @apps.route('/admin')
     def admin():

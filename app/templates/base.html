@@ -13,21 +13,21 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <body>
       <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('index')}}">LCA - UI Service : {{ session['domain'].upper() }}</a>
+        <a class="navbar-brand" href="{{ url_for('index')}}">Risk Assessment : {{ session['domain'].upper() }}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for('contract_new')}}">New Contract</a>
+              <a class="nav-link" href="{{url_for('contract_new')}}">New Report</a>
             </li>
             </ul>
         </div>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('contract_list')}}">Contracts</a>
+            <a class="nav-link" href="{{url_for('contract_list')}}">Reports</a>
           </li>
           </ul>
        </div>       

@@ -1,5 +1,4 @@
 h1 {
-    border: 2px #eee solid;
     color: brown;
     text-align: center;
     padding: 10px;
@@ -13,11 +12,10 @@ table {
   
 th {
     border:solid 1px rgb(12, 11, 11); 
-    height: 70px;
+    height: 40px;
 }
 td {
     border:solid 1px #fab; 
-    width:100px; 
     word-wrap:break-word;
 }
 
@@ -64,6 +62,11 @@ td {
 
 .myChartDiv {/*ww  w  .  j  a v  a2s  .co  m*/
     border: 1px #CCC solid;
-    width: 200px;
+    width: 800px;
     height: 200px;
+    text-align: center;
+ }
+
+ .myChartCanvas {
+    display: inline;
  }
