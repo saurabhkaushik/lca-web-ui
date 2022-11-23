@@ -4,7 +4,7 @@
 
 {% autoescape false %}
     <h4 align="center">Report Name : {{ post['title'] }} </h4> 
-    <h4 align="center">Report Risk Score : {{ post['score_context_json']['ScoreContextTotal'] }}% </h4>
+    <h4 align="center">Report Risk Score : {{ post['score_report_json']['score_report_risk_score'] }}% </h4>
     <h4 align="center">Report Risk Analytics : </h4>
     <table> 
         <tr align="center">                
@@ -26,7 +26,7 @@
             labels: ["High Risk", "Low Risk"],
             datasets: [{
                 label: 'Document Risk Score',  
-                data: [parseInt("{{ post['score_context_json']['ScoreContextTotal'] }}"), parseInt("{{ (100 - post['score_context_json']['ScoreContextTotal']) }}")],
+                data: [parseInt("{{ post['score_report_json']['score_report_risk_score'] }}"), parseInt("{{ (100 - post['score_report_json']['score_report_risk_score']) }}")],
                 backgroundColor: ["Red", "Green"]
             }]
          },
@@ -42,7 +42,7 @@
             labels: ["High", "Medium", "Low"],
             datasets: [{
                 label: 'Context Strength %', 
-                data: [parseInt("{{ post['score_context_json']['ScoreContextHigh'] }}"), parseInt("{{ post['score_context_json']['ScoreContextMedium'] }}"), parseInt("{{ post['score_context_json']['ScoreContextLow'] }}")],
+                data: [parseInt("{{ post['score_report_json']['ScoreContextHigh'] }}"), parseInt("{{ post['score_report_json']['ScoreContextMedium'] }}"), parseInt("{{ post['score_report_json']['ScoreContextLow'] }}")],
                 backgroundColor: ["Red", "Yellow", "Green"]
             }]
          }
@@ -62,8 +62,8 @@
         });
 
         const ctx4 = document.getElementById('Presence_Count_Chart');    
-        var label_keys = "{{ post['score_presence_json']['label_keys'] }}";
-        var label_values = "{{ post['score_presence_json']['label_values'] }}";
+        var label_keys = "{{ post['score_presence_count_json']['label_keys'] }}";
+        var label_values = "{{ post['score_presence_count_json']['label_values'] }}";
 
         let leng1 = label_keys.length;
         let result1 = label_keys.substring(1, leng1 - 1);

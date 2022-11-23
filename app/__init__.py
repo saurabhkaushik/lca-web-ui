@@ -85,7 +85,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
                 if answer == None:
                     answer = ''
-                response, score_context_json, score_context_count_json, score_presence_json = highservice.highlight_text(content, answer)
+                response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
 
                 dbutil.update_contracts_id(id, title, content, response)
 
@@ -93,9 +93,9 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
                 for pst in post:
                     post = pst
-                post['score_context_json'] = score_context_json
+                post['score_report_json'] = score_report_json
                 post['score_context_count_json'] = score_context_count_json
-                post['score_presence_json'] = score_presence_json
+                post['score_presence_count_json'] = score_presence_count_json
                 print ('Post : ', post)
                 return render_template('contract_analysis.html', post=post)
         return render_template('contract_new.html')
@@ -118,7 +118,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
-            response, score_context_json, score_context_count_json, score_presence_json = highservice.highlight_text(content, answer)
+            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
             
             dbutil.update_contracts_id(id, title, content, response)
 
@@ -126,9 +126,9 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             for pst in post:
                 post = pst
-            post['score_context_json'] = score_context_json
+            post['score_report_json'] = score_report_json
             post['score_context_count_json'] = score_context_count_json
-            post['score_presence_json'] = score_presence_json
+            post['score_presence_count_json'] = score_presence_count_json
             return render_template('contract_analysis.html', post=post)
         return redirect(url_for('contracts_list'))
     
