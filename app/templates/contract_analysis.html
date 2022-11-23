@@ -3,24 +3,21 @@
 <h1>{% block title %} Report Analysis {% endblock %}</h1>
 
 {% autoescape false %}
-    <h4>Report Name : {{ post['title'] }} </h4> 
-    <h4>Risk Score : {{ post['score_context_json']['ScoreContextTotal'] }}% </h4>
-    <h4>Contract : </h4>{{ post['response'] }} 
+    <h4 align="center">Report Name : {{ post['title'] }} </h4> 
+    <h4 align="center">Report Risk Score : {{ post['score_context_json']['ScoreContextTotal'] }}% </h4>
+    <h4 align="center">Report Risk Analytics : </h4>
+    <table> 
+        <tr align="center">                
+            <td><b>Document Risk Chart:</b> <div class="myChartDiv"><canvas id="Context_Gauge_Chart"></canvas></div></td>
+            <td><b>Context Count Chart:</b> <div class="myChartDiv"><canvas id="Context_Count_Chart"></canvas></div></td>
+            <td><b>Presence Count Chart:</b> <div class="myChartDiv"><canvas id="Presence_Count_Chart"></canvas></div></td>
+        </tr>
+    </table>
+    <h4 align="center">Processed Report : </h4>{{ post['response'] }} 
     <br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
-    <div class="myChartDiv"> 
-        <table> 
-            <tr align="center">                
-                <td>Document Risk Chart: <canvas id="Context_Gauge_Chart"></canvas></td>
-            </tr>
-            <tr align="center">
-                <td>Context Count Chart: <canvas id="Context_Count_Chart"></canvas></td>
-            </tr>
-            <tr align="center">
-                <td>Presence Count Chart: <canvas id="Presence_Count_Chart"></canvas></td>
-            </tr>
-        </table>
-    </div>
+     
+    
     <script>
         const ctx1 = document.getElementById('Context_Gauge_Chart');      
         new Chart(ctx1, {

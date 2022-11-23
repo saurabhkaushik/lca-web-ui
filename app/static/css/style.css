@@ -1,21 +1,24 @@
 h1 {
-    color: brown;
+    color: rgb(19, 3, 3);
     text-align: center;
     padding: 10px;
 }
 
 table {
     width: 100%;
-    table-layout: fixed;
-    border-collapse:collapse; 
+    table-layout: auto;
 }
   
+
 th {
-    border:solid 1px rgb(12, 11, 11); 
+    border:solid 1px rgb(11, 11, 12);
+    background-color: #0d09e0;
+    color: white;
     height: 40px;
-}
+  }
+
 td {
-    border:solid 1px #fab; 
+    border:solid 1px rgb(190, 170, 255); 
     word-wrap:break-word;
 }
 
@@ -25,7 +28,7 @@ td {
     z-index: 1;
     color: white;
     font-size: 12px;
-    background-color: #192733;
+    background-color: #041a2d;
     border-radius: 10px;
     padding: 10px 15px 10px 15px;
 }
@@ -61,8 +64,7 @@ td {
 }   
 
 .myChartDiv {/*ww  w  .  j  a v  a2s  .co  m*/
-    border: 1px #CCC solid;
-    width: 800px;
+    width: 200px;
     height: 200px;
     text-align: center;
  }

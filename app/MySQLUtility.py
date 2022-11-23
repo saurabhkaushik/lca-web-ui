@@ -1,5 +1,6 @@
 import uuid
 from mysql.connector import pooling
+import datetime
 
 import mysql.connector
 from mysql.connector.constants import ClientFlag
@@ -165,7 +166,9 @@ class MySQLUtility:
             uu_id = str(uuid.uuid4())
             title = row['title']
             content = row['content']
-            insert_str = (uu_id, "2022-01-01 01:01", title, content,
+            now = datetime.datetime.utcnow()
+            formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+            insert_str = (uu_id, formatted_date, title, content,
                           row['type'], row['response'], row['domain'], row['userid'])
             rows_to_insert.append(insert_str)
 
@@ -240,7 +243,9 @@ class MySQLUtility:
                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s);")
         for row in batch_data:
             uu_id = str(uuid.uuid4())
-            insert_set = (uu_id, "2022-01-01 01:01",
+            now = datetime.datetime.utcnow()
+            formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+            insert_set = (uu_id, formatted_date,
                           row['keywords'], row['content'], row['type'], row['label'], row['domain'], row['userid'])
             rows_to_insert.append(insert_set)
 
@@ -337,7 +342,9 @@ class MySQLUtility:
                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
         for row in batch_data:
             uu_id = str(uuid.uuid4())
-            insert_set = (uu_id, "2022-01-01 01:01", row['content'], row['type'], row['label'], row['eval_label'], int(
+            now = datetime.datetime.utcnow()
+            formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+            insert_set = (uu_id, formatted_date, row['content'], row['type'], row['label'], row['eval_label'], int(
                 row['score']), int(row['eval_score']), row['domain'], row['userid'])
             rows_to_insert.append(insert_set)
 

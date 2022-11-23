@@ -54,29 +54,29 @@ class Highlight_Service:
 
                 if flag == "HIGH":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: LightSalmon;\">" + content[start_index:end_index] + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag + \
-                        " P_Score : " + str(p_score) + "%; S_Score : " + \
+                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(sc_score) + "%</span></mark></div>"
                     score_context_high += sc_score
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: orange;\">" + content[start_index:end_index] + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag + \
-                        " P_Score : " + str(p_score) + "%; S_Score : " + \
+                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(sc_score) + "%</span></mark></div>"
                     score_context_medium += sc_score
                     score_context_medium_count += 1
                 elif flag == "LOW":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: lightgreen;\">" + content[start_index:end_index] + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag + \
-                        " P_Score : " + str(p_score) + "%; S_Score : " + \
+                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(sc_score) + "% </span></mark></div>"
                     score_context_low += sc_score
                     score_context_low_count += 1
             else: 
                 processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\">" + content[start_index:end_index] + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag + \
-                        " P_Score : " + str(p_score) + "%; S_Score : " + \
+                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(sc_score) + "%</span></mark></div>"
             last_index = end_index
 
