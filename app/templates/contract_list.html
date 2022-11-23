@@ -17,18 +17,18 @@
             <td>
                 <a href="{{ url_for('contract_edit', id=post['id']) }}">
                     <input type="submit" value="Edit"
-                            class="btn btn-danger btn-sm" >
+                            class="btn btn-primary" >
                 </a>
                 <TD>
                 <form action="{{ url_for('contract_analyse', id=post['id']) }}" method="POST">
                     <input type="submit" value="Analyse"
-                            class="btn btn-danger btn-sm" >
+                            class="btn btn-primary" >
                 </form>
             </TD>
             <TD>
                 <form action="{{ url_for('contract_delete', id=post['id']) }}" method="POST">
                     <input type="submit" value="Delete"
-                            class="btn btn-danger btn-sm"
+                            class="btn btn-primary"
                             onclick="return confirm('Are you sure you want to delete this post?')">
                 </form>
             </td>

@@ -15,7 +15,9 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     apps.secret_key = "LCA"  
     
     domains = apps.config['DOMAINS']
-    app_domain = apps.config['DEFAULT_DOMAINS']
+    functions = apps.config['FUNCTIONS']
+    app_domain = apps.config['DEFAULT_DOMAIN']
+    app_function = apps.config['DEFAULT_FUNCTION']
     classify_url = apps.config['AI_SERVICE_URL'] + "/classify_service"
     google_cert_key = apps.config['GOOGLE_CERT_KEY']
 
@@ -56,6 +58,11 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         if request.method == 'POST':
             s_domain = request.form['domain']
             session['domain'] = s_domain
+            i = 0
+            for domain in domains: 
+                if domain == s_domain: 
+                    session['function'] = functions[i]
+                i += 1
         return render_template('index.html')
 
     @apps.route('/contract_new', methods=('GET', 'POST'))
@@ -78,7 +85,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
                 if answer == None:
                     answer = ''
-                response, score_context_json, count_presence_json = highservice.highlight_text(content, answer)
+                response, score_context_json, score_context_count_json, score_presence_json = highservice.highlight_text(content, answer)
 
                 dbutil.update_contracts_id(id, title, content, response)
 
@@ -87,9 +94,65 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 for pst in post:
                     post = pst
                 post['score_context_json'] = score_context_json
-                post['count_presence_json'] = count_presence_json
+                post['score_context_count_json'] = score_context_count_json
+                post['score_presence_json'] = score_presence_json
                 print ('Post : ', post)
                 return render_template('contract_analysis.html', post=post)
+        return render_template('contract_new.html')
+
+    @apps.route('/<string:id>/contract_analyse', methods=('GET', 'POST'))
+    def contract_analyse(id):
+        s_domain = get_domain()
+        post = dbutil.get_contracts_id(id)
+        for pst in post:
+            post = pst
+        title = post['title']
+        content = post['content'] 
+        #content = clean_input_text(content)
+        print("Contract : ", title, content)
+        if not content and not title:
+            flash('contract and title are required!')
+            return render_template('contract_list.html')
+        else:            
+            answer = get_classify_service_response(id, s_domain)
+
+            if answer == None:
+                answer = ''
+            response, score_context_json, score_context_count_json, score_presence_json = highservice.highlight_text(content, answer)
+            
+            dbutil.update_contracts_id(id, title, content, response)
+
+            post = dbutil.get_contracts_id(id)
+
+            for pst in post:
+                post = pst
+            post['score_context_json'] = score_context_json
+            post['score_context_count_json'] = score_context_count_json
+            post['score_presence_json'] = score_presence_json
+            return render_template('contract_analysis.html', post=post)
+        return redirect(url_for('contracts_list'))
+    
+    @apps.route('/contract_save', methods=('GET', 'POST'))
+    def contract_save():
+        s_domain = get_domain()
+        if request.method == 'POST':
+            title = request.form['title']
+            content = request.form['content']
+            print("Contract : ", content)
+            if not content or not title:
+                flash('contract and title is required!')
+            else:
+                batch_insert = []
+                insert_json = {"title": title, "content": content,  "type": "users",
+                               "response": '', "domain": s_domain, "userid": "admin"}
+                batch_insert.append(insert_json)
+                id = dbutil.save_contracts_batch(batch_insert)
+
+                post = dbutil.get_contracts_id(id)
+
+                for pst in post:
+                    post = pst
+                return render_template('contract_view.html', post=post)
         return render_template('contract_new.html')
 
     @apps.route('/<string:id>/contract_edit', methods=('GET', 'POST'))
@@ -123,36 +186,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         dbutil.delete_contracts_id(id)
 
         return redirect(url_for('contract_list'))
-
-    @apps.route('/<string:id>/contract_analyse', methods=('GET', 'POST'))
-    def contract_analyse(id):
-        s_domain = get_domain()
-        post = dbutil.get_contracts_id(id)
-        for pst in post:
-            post = pst
-        title = post['title']
-        content = post['content']
-        print("Contract : ", title, content)
-        if not content and not title:
-            flash('contract and title are required!')
-            return render_template('contract_list.html')
-        else:            
-            answer = get_classify_service_response(id, s_domain)
-
-            if answer == None:
-                answer = ''
-            response, score_context_json, count_presence_json = highservice.highlight_text(content, answer)
-            
-            dbutil.update_contracts_id(id, title, content, response)
-
-            post = dbutil.get_contracts_id(id)
-
-            for pst in post:
-                post = pst
-            post['score_context_json'] = score_context_json
-            post['count_presence_json'] = count_presence_json
-            return render_template('contract_analysis.html', post=post)
-        return redirect(url_for('contracts_list'))
 
     @apps.route('/seed_data_new', methods=('GET', 'POST'))
     def seed_data_new():
@@ -207,11 +240,10 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
     def set_domain():  
         session['domains'] = domains    
-        try:   
-            if session['domain'] == None:
-                session['domain'] = app_domain 
-        except KeyError: 
+        if not 'domain' in session.keys():
             session['domain'] = app_domain 
+        if not 'function' in session.keys():
+            session['function'] = app_function  
         return None
     
     def get_classify_service_response(id, s_domain):

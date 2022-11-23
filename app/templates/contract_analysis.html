@@ -1,63 +1,97 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>{% block title %} Contract Analysis {% endblock %}</h1>
+<h1>{% block title %} Report Analysis {% endblock %}</h1>
 
 {% autoescape false %}
     <h4>Report Name : {{ post['title'] }} </h4> 
-    <h4>Risk Score : {{ post['score_context_json']['ScoreContext'] }}% </h4>
+    <h4>Risk Score : {{ post['score_context_json']['ScoreContextTotal'] }}% </h4>
     <h4>Contract : </h4>{{ post['response'] }} 
     <br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
     <div class="myChartDiv"> 
         <table> 
-            <tr>
-                <td><canvas id="RiskScoreChart"></canvas></td> 
-                <td><canvas id="RiskDistributionChart"></canvas></td>
+            <tr align="center">                
+                <td>Document Risk Chart: <canvas id="Context_Gauge_Chart"></canvas></td>
+            </tr>
+            <tr align="center">
+                <td>Context Count Chart: <canvas id="Context_Count_Chart"></canvas></td>
+            </tr>
+            <tr align="center">
+                <td>Presence Count Chart: <canvas id="Presence_Count_Chart"></canvas></td>
             </tr>
         </table>
     </div>
     <script>
-        const ctx1 = document.getElementById('RiskScoreChart');      
+        const ctx1 = document.getElementById('Context_Gauge_Chart');      
         new Chart(ctx1, {
           type: 'doughnut',
           data: {
+            labels: ["High Risk", "Low Risk"],
             datasets: [{
                 label: 'Document Risk Score',  
-                data: [parseInt("{{ post['score_context_json']['ScoreContext'] }}"), parseInt("{{ (100 - post['score_context_json']['ScoreContext']) }}")],
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(255, 205, 86)'
-                    ]
-            }],
-            labels: [   
-                'High',
-                'Low'
-            ], 
+                data: [parseInt("{{ post['score_context_json']['ScoreContextTotal'] }}"), parseInt("{{ (100 - post['score_context_json']['ScoreContextTotal']) }}")],
+                backgroundColor: ["Red", "Green"]
+            }]
          },
          options: {
-            animation: {
-                duration: 0
+            rotation: 270, // start angle in degrees
+            circumference: 180, // sweep angle in degrees
             }
-        }
         });
-
-        const ctx2 = document.getElementById('RiskDistributionChart');      
+        const ctx2 = document.getElementById('Context_Strength_Chart');      
         new Chart(ctx2, {
           type: 'doughnut',
           data: {
+            labels: ["High", "Medium", "Low"],
             datasets: [{
-                data: [parseInt("{{ post['score_context_json']['ScoreContextHigh'] }}"), parseInt("{{ post['score_context_json']['ScoreContextMedium'] }}"), , parseInt("{{ post['score_context_json']['ScoreContextLow'] }}")],
-                backgroundColor: [
-                'rgb(255, 99, 132)',
-                'rgb(54, 162, 235)',
-                'rgb(255, 205, 86)'
-                    ]
-            }],
-            labels: [   
-                'High',
-                'Medium',
-                'Low'
-            ], 
+                label: 'Context Strength %', 
+                data: [parseInt("{{ post['score_context_json']['ScoreContextHigh'] }}"), parseInt("{{ post['score_context_json']['ScoreContextMedium'] }}"), parseInt("{{ post['score_context_json']['ScoreContextLow'] }}")],
+                backgroundColor: ["Red", "Yellow", "Green"]
+            }]
+         }
+        });
+
+        const ctx3 = document.getElementById('Context_Count_Chart');      
+        new Chart(ctx3, {
+          type: 'doughnut',
+          data: {
+            labels: ["High", "Medium", "Low"],
+            datasets: [{
+                label: 'Context Count:', 
+                data: [parseInt("{{ post['score_context_count_json']['score_context_high_count'] }}"), parseInt("{{ post['score_context_count_json']['score_context_medium_count'] }}"), parseInt("{{ post['score_context_count_json']['score_context_low_count'] }}")],
+                backgroundColor: ["Red", "Yellow", "Green"]
+            }]
+         }
+        });
+
+        const ctx4 = document.getElementById('Presence_Count_Chart');    
+        var label_keys = "{{ post['score_presence_json']['label_keys'] }}";
+        var label_values = "{{ post['score_presence_json']['label_values'] }}";
+
+        let leng1 = label_keys.length;
+        let result1 = label_keys.substring(1, leng1 - 1);
+        var text1 = result1.split(", ");
+
+        let leng2 = label_values.length;
+        let result2 = label_values.substring(1, leng2 - 1);
+        var text2 = result2.split(", ");
+
+        var label_k = []
+        var label_v = []
+        for (i=0;i<text2.length; i++) {            
+            label_k.push(text1[i]) // .substring(1, (text1[i].length - 1))
+            label_v.push(parseInt(text2[i]) )
+        }
+
+        new Chart(ctx4, {
+          type: 'doughnut',
+          data: {
+            labels: label_k,
+            datasets: [{
+                label: 'Presence Count:', 
+                data: label_v,
+                backgroundColor: ["Red", "Yellow", "Green"]
+            }]
          }
         });
     </script>
