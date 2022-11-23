@@ -6,13 +6,13 @@ class Highlight_Service:
 
     def get_flag(self, score):
         flag = ''
-        if score > 30:
+        if score < 30:
             flag = "LOW"
         else:
-            if score >= -30 and score <= 30:
+            if score >= 30 and score <= 70:
                 flag = "MEDIUM"
             else:
-                if score < -30:
+                if score > 70:
                     flag = "HIGH"
         return flag
 
@@ -20,18 +20,14 @@ class Highlight_Service:
         processed_text = ""
         last_index = 0
         len_text = len(content)
-        score_context_total = 0
-        score_context_sents = 0
-        score_context_high = 0
-        score_context_medium = 0
-        score_context_low = 0
+
+        score_presence_count_total = 0
         score_context_high_count = 0
         score_context_medium_count = 0
         score_context_low_count = 0
-        score_context_total_count = 0
-        score_presence_count_json = {}
+        score_risk_sents = 0
 
-        lable_count = 0
+        score_presence_count_json = {}
         for key in hl_index:
             label = hl_index[key]['label']  
             start_index = hl_index[key]["start_index"]
@@ -40,45 +36,40 @@ class Highlight_Service:
             s_score = int(hl_index[key]['s_score'])
             c_score = int(hl_index[key]['c_score'])
             sc_score = int((s_score + c_score) / 2)
-            flag = self.get_flag(sc_score) 
+            score_risk = int(50 + ((s_score + c_score) / 4))
+            flag = self.get_flag(score_risk) 
                       
             if p_score > 75:
-                score_context_sents += sc_score
-                score_context_total += 100
-                score_context_total_count += 1
+                score_risk_sents += score_risk
+                score_presence_count_total += 1
                 if label in score_presence_count_json.keys(): 
                     score_presence_count_json[label] += 1
                 else: 
                     score_presence_count_json[label] = 1
-                    lable_count += 1
-                #score_presence_count_json['TotalCount'] += 1
 
                 if flag == "HIGH":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: LightSalmon;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%</span></mark></div>"
-                    score_context_high += sc_score
+                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "%</span></mark></div>"
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: orange;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%</span></mark></div>"
-                    score_context_medium += sc_score
+                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "%</span></mark></div>"
                     score_context_medium_count += 1
                 elif flag == "LOW":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: lightgreen;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "% </span></mark></div>"
-                    score_context_low += sc_score
+                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "% </span></mark></div>"
                     score_context_low_count += 1
             else: 
                 processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%</span></mark></div>"
+                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "%</span></mark></div>"
             last_index = end_index
 
         if last_index != len_text:
@@ -86,22 +77,14 @@ class Highlight_Service:
 
         # Context Scoring 
         score_report_risk_score = 0
-        if score_context_total != 0:
-            score_report_risk_score = (score_context_sents / score_context_total) * 100
-            score_context_high = (score_context_high / score_context_total) * 100
-            score_context_medium = (score_context_medium / score_context_total) * 100
-            score_context_low = (score_context_low / score_context_total) * 100
-            #score_context_high_count = (score_context_high_count / score_context_total_count) * 100
-            #score_context_medium_count = (score_context_medium_count / score_context_total_count) * 100
-            #score_context_low_count = (score_context_low_count / score_context_total_count) * 100
+        if score_presence_count_total != 0:
+            score_report_risk_score = (score_risk_sents / score_presence_count_total)
 
         # Context Strength Percentage based on Score 
         score_report_json = {'score_report_risk_score': int(score_report_risk_score)}
-        #score_report_json = {'ScoreContextTotal': int(score_context_sents), 'ScoreContextHigh' : int(score_context_high), 'ScoreContextMedium' : int(score_context_medium), 'ScoreContextLow' : int(score_context_low)}
         # Context Count Percentage based on Counts  
-        score_context_count_json = {'score_context_total_count': int(score_context_total_count), 'score_context_high_count' : int(score_context_high_count), 'score_context_medium_count' : int(score_context_medium_count), 'score_context_low_count' : int(score_context_low_count)}
+        score_context_count_json = {'score_context_high_count' : int(score_context_high_count), 'score_context_medium_count' : int(score_context_medium_count), 'score_context_low_count' : int(score_context_low_count)}
         
-        #score_presence_count_json['lable_count'] = lable_count
         label_keys = list(score_presence_count_json.keys())
         label_values = list(score_presence_count_json.values())
         score_presence_count_json['label_keys'] = label_keys
