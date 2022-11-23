@@ -38,7 +38,7 @@ class Highlight_Service:
             sc_score = int(50 + ((s_score + c_score) / 4)) # modify name later - Context Score 
             pc_score = ((p_score - present_base_score) / (100 - present_base_score)) * 100
             risk_score = int ((sc_score + pc_score) / 2)
-            flag = self.get_flag(risk_score) 
+            flag = self.get_flag(sc_score) 
                       
             if p_score > present_base_score:
                 score_risk_sents += risk_score
