@@ -1,5 +1,5 @@
 
-
+present_base_score = 75 
 class Highlight_Service:
     def __init__(self) -> None:
         pass
@@ -35,12 +35,13 @@ class Highlight_Service:
             p_score = int(hl_index[key]['p_score'])
             s_score = int(hl_index[key]['s_score'])
             c_score = int(hl_index[key]['c_score'])
-            sc_score = int((s_score + c_score) / 2)
-            score_risk = int(50 + ((s_score + c_score) / 4))
-            flag = self.get_flag(score_risk) 
+            sc_score = int(50 + ((s_score + c_score) / 4)) # modify name later - Context Score 
+            pc_score = ((p_score - present_base_score) / (100 - present_base_score)) * 100
+            risk_score = int ((sc_score + pc_score) / 2)
+            flag = self.get_flag(risk_score) 
                       
-            if p_score > 75:
-                score_risk_sents += score_risk
+            if p_score > present_base_score:
+                score_risk_sents += risk_score
                 score_presence_count_total += 1
                 if label in score_presence_count_json.keys(): 
                     score_presence_count_json[label] += 1
@@ -51,25 +52,25 @@ class Highlight_Service:
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: LightSalmon;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "%</span></mark></div>"
+                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: orange;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "%</span></mark></div>"
+                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_medium_count += 1
                 elif flag == "LOW":
                     processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: lightgreen;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "% </span></mark></div>"
+                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "% </span></mark></div>"
                     score_context_low_count += 1
             else: 
                 processed_text += content[last_index:start_index] + "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\">" + content[start_index:end_index] + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(score_risk) + "%</span></mark></div>"
+                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
             last_index = end_index
 
         if last_index != len_text:
