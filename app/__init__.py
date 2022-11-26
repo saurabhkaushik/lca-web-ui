@@ -20,10 +20,13 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     app_function = apps.config['DEFAULT_FUNCTION']
     classify_url = apps.config['AI_SERVICE_URL'] + "/classify_service"
     google_cert_key = apps.config['GOOGLE_CERT_KEY']
+    db_host = apps.config['DB_HOST']
+    db_user = apps.config['DB_USER']
+    db_password = apps.config['DB_PASSWORD']
 
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_cert_key
 
-    dbutil = MySQLUtility()
+    dbutil = MySQLUtility(db_host, db_user, db_password)
     highservice = Highlight_Service()
     
     if config_overrides:

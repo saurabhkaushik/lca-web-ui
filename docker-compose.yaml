@@ -1,8 +1,15 @@
 version: "3.9"
 services:
   web:
-    container_name: law-web-app
+    image: "law-web-app:latest"
+    container_name: "law-web-app"
     build: .
+    environment:
+      DEBUG: "True"
+      PYTHONUNBUFFERED: '1'
+      REQUIREMENTS: requirements.txt
+    expose: 
+    - 8080
     ports:
       - "8080:8080"
     networks:
