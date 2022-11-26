@@ -1,9 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{% block title %} Risk Assessment - Admin {% endblock %}</h1>
-
-<li>Re-Training</li>
-<li>Users</li>
+    <h1>{% block title %} Risk Assessment for {{ session['function'].capitalize() }}  {% endblock %}</h1>
+    <H4 align="center">{{ session['function'].capitalize() }} Risk Assessment helps business reduce their {{ session['domain'].capitalize() }} Risk using the power of AI. </h4>
+    <br>
+    <form method="post" action="{{ url_for('set_domain') }}">
+        <H5> Your current domain is <select name="domain" onchange="this.form.submit();">  
+            {% for domain in session['domains'] :%}  
+                {% if domain == session['domain'] : %}                
+                    <option value='{{ domain }}' selected>{{ domain.upper() }}</option>
+                {% else: %}
+                    <option value='{{ domain }}' >{{ domain.upper() }}</option>
+                {% endif %}
+            {% endfor %}
+        </select> </H5>
+    </form>
+    {% include 'contract_new_include.html' %}  
 
 {% endblock %}
