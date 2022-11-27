@@ -23,10 +23,12 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     db_host = apps.config['DB_HOST']
     db_user = apps.config['DB_USER']
     db_password = apps.config['DB_PASSWORD']
+    db_name = apps.config['DB_NAME']
+    app_env = apps.config['APP_ENV']
 
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_cert_key
 
-    dbutil = MySQLUtility(db_host, db_user, db_password)
+    dbutil = MySQLUtility(db_host, db_user, db_password, db_name)
     highservice = Highlight_Service()
     
     if config_overrides:
