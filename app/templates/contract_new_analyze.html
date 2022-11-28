@@ -1,0 +1,15 @@
+<form method="post" action="{{ url_for('contract_new') }}">
+    <div class="form-group">
+        <label for="content"><b>Title</b></label>
+        <input type="text" name="title" placeholder="Give the Title" maxlength="200"
+                  class="form-control">{{ request.form['title'] }}</input>
+    </div> 
+    <div class="form-group">
+        <label for="content"><b>Report</b></label>
+        <textarea name="content" placeholder="Copy the Report Text" rows="12" cols="50" maxlength="10000"
+                  class="form-control">{{ request.form['content'] }}</textarea>
+    </div> 
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Analyze</button>
+    </div>
+</form>

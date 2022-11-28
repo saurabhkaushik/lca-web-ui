@@ -1,15 +1,25 @@
 import logging
+import traceback
+
 import os
 import requests
 from flask import (Flask, flash, jsonify, session, make_response, redirect,
                    render_template, request, url_for)
 
-from app.MySQLUtility import MySQLUtility
+from app.common.MySQLUtility import MySQLUtility
 from app.Highlight_Service import Highlight_Service
 
 def create_app(config, debug=False, testing=False, config_overrides=None):
     apps = Flask(__name__)
-    apps.config.from_object(config.DevelopmentConfig)
+
+    app_env = os.getenv('LCA_APP_ENV')
+    if app_env == 'production':
+        apps.config.from_object(config.ProductionConfig)
+        print('Envornment: ', app_env)
+    else: 
+        apps.config.from_object(config.DevelopmentConfig)
+        print('Envornment: ', app_env)
+
     apps.debug = debug
     apps.testing = testing
     apps.secret_key = "LCA"  
@@ -19,14 +29,11 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     app_domain = apps.config['DEFAULT_DOMAIN']
     app_function = apps.config['DEFAULT_FUNCTION']
     classify_url = apps.config['AI_SERVICE_URL'] + "/classify_service"
-    google_cert_key = apps.config['GOOGLE_CERT_KEY']
     db_host = apps.config['DB_HOST']
     db_user = apps.config['DB_USER']
     db_password = apps.config['DB_PASSWORD']
     db_name = apps.config['DB_NAME']
-    app_env = apps.config['APP_ENV']
-
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_cert_key
+    data_env = apps.config['DATA_ENV']
 
     dbutil = MySQLUtility(db_host, db_user, db_password, db_name)
     highservice = Highlight_Service()
@@ -104,6 +111,52 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 print ('Post : ', post)
                 return render_template('contract_analysis.html', post=post)
         return render_template('contract_new.html')
+
+    @apps.route('/riskanalysis', methods=('GET', 'POST'))
+    def riskanalysis():        
+        content_type = request.headers.get('Content-Type')
+        if (not content_type == 'application/json'):
+            return 'Content-Type not supported!'
+        json_resp = {}
+        json_req = {}
+        try: 
+            json_req = request.get_json()
+        except Exception as e:
+            logging.error(traceback.format_exc())
+            return json_req
+        
+        title = json_req['title']
+        content = json_req['content']
+        s_domain = json_req['domain']
+        print("Request : ", title, content, s_domain)
+        if not content or not title or not s_domain:
+            flash('contract and title is required!')
+        else:
+            batch_insert = []
+            insert_json = {"title": title, "content": content,  "type": "users",
+                            "response": '', "domain": s_domain, "userid": "admin"}
+            batch_insert.append(insert_json)
+            id = dbutil.save_contracts_batch(batch_insert)
+
+            answer = get_classify_service_response(id, s_domain)
+
+            if answer == None:
+                answer = ''
+            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
+
+            dbutil.update_contracts_id(id, title, content, response)
+
+            post = dbutil.get_contracts_id(id)
+
+            for pst in post:
+                post = pst
+            post['score_report_json'] = score_report_json
+            post['score_context_count_json'] = score_context_count_json
+            post['score_presence_count_json'] = score_presence_count_json
+            print ('Post : ', post) 
+            json_resp = jsonify(post)
+            print ('json_resp : ', json_resp)
+        return json_resp
 
     @apps.route('/<string:id>/contract_analyse', methods=('GET', 'POST'))
     def contract_analyse(id):
