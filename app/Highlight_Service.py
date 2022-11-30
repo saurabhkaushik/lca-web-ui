@@ -33,9 +33,7 @@ class Highlight_Service:
             start_index = hl_index[key]["start_index"]
             end_index = hl_index[key]["end_index"]            
             p_score = int(hl_index[key]['p_score'])
-            s_score = int(hl_index[key]['s_score'])
-            c_score = int(hl_index[key]['c_score'])
-            sc_score = int(50 + ((s_score + c_score) / 4)) # modify name later - Context Score 
+            sc_score = int(hl_index[key]['c_score'])
             pc_score = ((p_score - present_base_score) / (100 - present_base_score)) * 100
             risk_score = int ((sc_score + pc_score) / 2)
             flag = self.get_flag(sc_score) 
