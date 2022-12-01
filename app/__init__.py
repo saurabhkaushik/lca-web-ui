@@ -89,7 +89,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             else:
                 batch_insert = []
                 insert_json = {"title": title, "content": content,  "type": "users",
-                               "response": '', "domain": s_domain, "userid": "admin"}
+                               "response": '', "domain": s_domain, "userid": "user"}
                 batch_insert.append(insert_json)
                 id = dbutil.save_contracts_batch(batch_insert)
 
@@ -99,18 +99,52 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                     answer = ''
                 response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
 
-                dbutil.update_contracts_id(id, title, content, response)
+                #dbutil.update_contracts_id(id, title, content, response)
 
                 post = dbutil.get_contracts_id(id)
 
                 for pst in post:
                     post = pst
+                post['highlight_response'] = response
                 post['score_report_json'] = score_report_json
                 post['score_context_count_json'] = score_context_count_json
                 post['score_presence_count_json'] = score_presence_count_json
                 print ('Post : ', post)
                 return render_template('contract_analysis.html', post=post)
         return render_template('contract_new.html')
+
+    @apps.route('/<string:id>/contract_analyse', methods=('GET', 'POST'))
+    def contract_analyse(id):
+        s_domain = get_domain()
+        post = dbutil.get_contracts_id(id)
+        for pst in post:
+            post = pst
+        title = post['title']
+        content = post['content'] 
+        #content = clean_input_text(content)
+        print("Contract : ", title, content)
+        if not content and not title:
+            flash('contract and title are required!')
+            return render_template('contract_list.html')
+        else:            
+            answer = get_classify_service_response(id, s_domain)
+
+            if answer == None:
+                answer = ''
+            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
+            
+            #dbutil.update_contracts_id(id, title, content, response)
+
+            post = dbutil.get_contracts_id(id)
+
+            for pst in post:
+                post = pst
+            post['highlight_response'] = response
+            post['score_report_json'] = score_report_json
+            post['score_context_count_json'] = score_context_count_json
+            post['score_presence_count_json'] = score_presence_count_json
+            return render_template('contract_analysis.html', post=post)
+        return redirect(url_for('contracts_list'))
 
     @apps.route('/riskanalysis', methods=('GET', 'POST'))
     def riskanalysis():        
@@ -134,7 +168,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         else:
             batch_insert = []
             insert_json = {"title": title, "content": content,  "type": "users",
-                            "response": '', "domain": s_domain, "userid": "admin"}
+                            "response": '', "domain": s_domain, "userid": "user"}
             batch_insert.append(insert_json)
             id = dbutil.save_contracts_batch(batch_insert)
 
@@ -157,38 +191,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             json_resp = jsonify(post)
             print ('json_resp : ', json_resp)
         return json_resp
-
-    @apps.route('/<string:id>/contract_analyse', methods=('GET', 'POST'))
-    def contract_analyse(id):
-        s_domain = get_domain()
-        post = dbutil.get_contracts_id(id)
-        for pst in post:
-            post = pst
-        title = post['title']
-        content = post['content'] 
-        #content = clean_input_text(content)
-        print("Contract : ", title, content)
-        if not content and not title:
-            flash('contract and title are required!')
-            return render_template('contract_list.html')
-        else:            
-            answer = get_classify_service_response(id, s_domain)
-
-            if answer == None:
-                answer = ''
-            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
-            
-            dbutil.update_contracts_id(id, title, content, response)
-
-            post = dbutil.get_contracts_id(id)
-
-            for pst in post:
-                post = pst
-            post['score_report_json'] = score_report_json
-            post['score_context_count_json'] = score_context_count_json
-            post['score_presence_count_json'] = score_presence_count_json
-            return render_template('contract_analysis.html', post=post)
-        return redirect(url_for('contracts_list'))
     
     @apps.route('/contract_save', methods=('GET', 'POST'))
     def contract_save():
@@ -202,7 +204,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             else:
                 batch_insert = []
                 insert_json = {"title": title, "content": content,  "type": "users",
-                               "response": '', "domain": s_domain, "userid": "admin"}
+                               "response": '', "domain": s_domain, "userid": "user"}
                 batch_insert.append(insert_json)
                 id = dbutil.save_contracts_batch(batch_insert)
 
@@ -263,7 +265,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             else:
                 batch_insert = []
                 insert_json = {"keywords": keywords, "content": content, "label": label,
-                               "type": 'users', "domain": s_domain, "userid": 'admin'}
+                               "type": 'users', "domain": s_domain, "userid": 'user'}
                 batch_insert.append(insert_json)
                 post_id = dbutil.save_seed_data_batch(batch_insert)
                 post = dbutil.get_seed_data_id(post_id)

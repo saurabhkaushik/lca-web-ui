@@ -20,10 +20,10 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     FLASK_APP='src/app'
     FLASK_ENV='development'
-    AI_SERVICE_URL='http://34.93.6.90/'
+    AI_SERVICE_URL='http://34.93.6.90'
     #AI_SERVICE_URL='https://lca-ai-services-i7kp7xmhka-el.a.run.app'
     #AI_SERVICE_URL='http://law-service-app:8081' 
-    #AI_SERVICE_URL='http://127.0.0.1:8081/'    
+    #AI_SERVICE_URL='http://127.0.0.1:8081'    
     DOMAINS =['liabilities', 'esg']
     FUNCTIONS = ['Financial', 'Sustainability']
     DEFAULT_DOMAIN = 'esg'
