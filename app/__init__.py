@@ -97,7 +97,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
                 if answer == None:
                     answer = ''
-                response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
+                response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
 
                 #dbutil.update_contracts_id(id, title, content, response)
 
@@ -131,7 +131,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
-            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
+            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
             
             #dbutil.update_contracts_id(id, title, content, response)
 
@@ -176,7 +176,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
-            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(content, answer)
+            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
 
             dbutil.update_contracts_id(id, title, content, response)
 

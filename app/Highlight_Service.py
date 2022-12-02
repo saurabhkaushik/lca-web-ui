@@ -6,6 +6,8 @@ class Highlight_Service:
         pass
 
     def get_flag(self, score):
+        score = int (((score - present_base_score) / (100 - present_base_score)) * 100)
+
         flag = ''
         if score < 30:
             flag = "LOW"
@@ -17,10 +19,8 @@ class Highlight_Service:
                     flag = "HIGH"
         return flag
 
-    def highlight_text(self, content, hl_index):
+    def highlight_text(self, hl_index):
         processed_text = ""
-        last_index = 0
-        len_text = len(content)
 
         score_presence_count_total = 0
         score_context_high_count = 0
@@ -31,12 +31,11 @@ class Highlight_Service:
         score_presence_count_json = {}
         for key in hl_index:
             c_sentence = hl_index[key]['sentence']
-            label = hl_index[key]['label']          
-            p_score = int(hl_index[key]['p_score'])
-            sc_score = int(hl_index[key]['sc_score'])
-            pc_score = ((p_score - present_base_score) / (100 - present_base_score)) * 100
-            risk_score = int ((sc_score + pc_score) / 2)
-            flag = self.get_flag(sc_score) 
+            label = hl_index[key]['label']   
+
+            p_score = int(hl_index[key]['presence_score'])
+            c_score = int(hl_index[key]['context_score'])
+            risk_score = int(hl_index[key]['risk_score'])               
                       
             if p_score > present_base_score:
                 score_risk_sents += risk_score
@@ -46,29 +45,32 @@ class Highlight_Service:
                 else: 
                     score_presence_count_json[label] = 1
 
+                flag = self.get_flag(c_score) 
+
                 if flag == "HIGH":
                     processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: LightSalmon;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
+                        str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
                     processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: orange;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
+                        str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_medium_count += 1
                 elif flag == "LOW":
                     processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: lightgreen;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "% </span></mark></div>"
+                        str(c_score) + "%; Risk Score : " + str(risk_score) + "% </span></mark></div>"
                     score_context_low_count += 1
             else: 
+                flag = self.get_flag(c_score) 
                 processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(sc_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
+                        str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
 
         # Context Scoring 
         score_report_risk_score = 0
