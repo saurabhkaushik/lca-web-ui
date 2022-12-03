@@ -1,6 +1,6 @@
 import logging
 import traceback
-
+import time
 import os
 import requests
 from flask import (Flask, flash, jsonify, session, make_response, redirect,
@@ -28,15 +28,17 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     functions = apps.config['FUNCTIONS']
     app_domain = apps.config['DEFAULT_DOMAIN']
     app_function = apps.config['DEFAULT_FUNCTION']
-    classify_url = apps.config['AI_SERVICE_URL'] + "/classify_service"
+    classify_url = os.getenv('AI_SERVICE_URL') + "/classify_service"
     db_host = apps.config['DB_HOST']
     db_user = apps.config['DB_USER']
     db_password = apps.config['DB_PASSWORD']
     db_name = apps.config['DB_NAME']
-    data_env = apps.config['DATA_ENV']
 
     dbutil = MySQLUtility(db_host, db_user, db_password, db_name)
     highservice = Highlight_Service()
+
+    print ('Creating DB Connection Pool')
+    dbutil.get_connection()
     
     if config_overrides:
         apps.config.update(config_overrides)
@@ -126,7 +128,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         if not content and not title:
             flash('contract and title are required!')
             return render_template('contract_list.html')
-        else:            
+        else:     
             answer = get_classify_service_response(id, s_domain)
 
             if answer == None:
@@ -176,9 +178,10 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
+            '''             
             response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
 
-            dbutil.update_contracts_id(id, title, content, response)
+            #dbutil.update_contracts_id(id, title, content, response)
 
             post = dbutil.get_contracts_id(id)
 
@@ -188,8 +191,10 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             post['score_context_count_json'] = score_context_count_json
             post['score_presence_count_json'] = score_presence_count_json
             print ('Post : ', post) 
+            '''
+            post = answer
             json_resp = jsonify(post)
-            print ('json_resp : ', json_resp)
+            print ('Response : ', post)
         return json_resp
     
     @apps.route('/contract_save', methods=('GET', 'POST'))
@@ -307,6 +312,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         return None
     
     def get_classify_service_response(id, s_domain):
+        begin = time.time()                  
         answer = {}
         try:
             request_data = {
@@ -320,6 +326,9 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             print("Response JSON :", answer)
         except requests.exceptions.ConnectionError as e:
             print('LCA AI Service is down :', e)
+        end = time.time()
+        time_diff = end - begin
+        print('Classify Service Response Time : ', time_diff)
         return answer
 
     @apps.route('/admin')
