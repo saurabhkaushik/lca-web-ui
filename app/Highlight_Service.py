@@ -6,8 +6,7 @@ class Highlight_Service:
         pass
 
     def get_flag(self, score):
-        score = int (((score - present_base_score) / (100 - present_base_score)) * 100)
-
+        #score = int (((score - present_base_score) / (100 - present_base_score)) * 100)
         flag = ''
         if score < 30:
             flag = "LOW"
@@ -48,19 +47,19 @@ class Highlight_Service:
                 flag = self.get_flag(c_score) 
 
                 if flag == "HIGH":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: LightSalmon;\">" + c_sentence + \
+                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: crimson;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: orange;\">" + c_sentence + \
+                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: darkorange;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_medium_count += 1
                 elif flag == "LOW":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: lightgreen;\">" + c_sentence + \
+                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: gold;\">" + c_sentence + \
                         "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "% </span></mark></div>"

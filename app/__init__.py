@@ -34,12 +34,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     db_password = apps.config['DB_PASSWORD']
     db_name = apps.config['DB_NAME']
 
-    dbutil = MySQLUtility(db_host, db_user, db_password, db_name)
-    highservice = Highlight_Service()
-
-    print ('Creating DB Connection Pool')
-    dbutil.get_connection()
-    
     if config_overrides:
         apps.config.update(config_overrides)
 
@@ -48,6 +42,14 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         logging.basicConfig(level=logging.INFO)
 
     logging.getLogger().setLevel(logging.INFO)
+
+    dbutil = MySQLUtility(db_host, db_user, db_password, db_name)
+    highservice = Highlight_Service()
+
+    print ('Creating DB Connection Pool')
+    dbutil.get_connection()
+    
+    print ('\nAll Pre-Loading Completed. \n')
 
     @apps.route('/')
     def index():        
@@ -324,11 +326,11 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             # print(response.json())
             answer = response.json()
             print("Response JSON :", answer)
-        except requests.exceptions.ConnectionError as e:
+        except Exception as e:
             print('LCA AI Service is down :', e)
         end = time.time()
         time_diff = end - begin
-        print('Classify Service Response Time : ', time_diff)
+        print('Response Time : ', time_diff)
         return answer
 
     @apps.route('/admin')

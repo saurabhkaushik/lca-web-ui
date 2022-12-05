@@ -13,7 +13,7 @@ class ProductionConfig(Config):
     DB_HOST = '34.170.168.203'
     DB_USER = 'root'
     DB_PASSWORD = 'nu123456'
-    DB_NAME = 'lca_db'
+    DB_NAME = 'lca_prod'
 
 class DevelopmentConfig(Config):
     FLASK_APP='src/app'
@@ -25,7 +25,7 @@ class DevelopmentConfig(Config):
     DB_HOST = '34.170.168.203'
     DB_USER = 'root'
     DB_PASSWORD = 'nu123456'
-    DB_NAME = 'lca_db'
+    DB_NAME = 'lca_dev'
 
 class TestingConfig(Config):
     DATABASE_URI = 'sqlite:///:memory:'
