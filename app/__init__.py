@@ -25,6 +25,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     apps.secret_key = "LCA"  
     
     domains = apps.config['DOMAINS']
+    domains_threshold = apps.config['DOMAINS_THRESHOLD']
     functions = apps.config['FUNCTIONS']
     app_domain = apps.config['DEFAULT_DOMAIN']
     app_function = apps.config['DEFAULT_FUNCTION']
@@ -78,6 +79,8 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             for domain in domains: 
                 if domain == s_domain: 
                     session['function'] = functions[i]
+                    session['threshold'] = domains_threshold[i]
+                    print (session['threshold'])
                 i += 1
         return render_template('index.html')
 
@@ -101,7 +104,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
                 if answer == None:
                     answer = ''
-                response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
+                response, score_report_json, score_context_count_json, score_presence_count_json, class_analysis = highservice.highlight_text(answer, session['threshold'])
 
                 #dbutil.update_contracts_id(id, title, content, response)
 
@@ -113,6 +116,8 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 post['score_report_json'] = score_report_json
                 post['score_context_count_json'] = score_context_count_json
                 post['score_presence_count_json'] = score_presence_count_json
+                post['class_analysis_key'] = list(class_analysis.keys())
+                post['class_analysis_value'] = list(class_analysis.values())
                 print ('Post : ', post)
                 return render_template('contract_analysis.html', post=post)
         return render_template('contract_new.html')
@@ -135,7 +140,7 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
-            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
+            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer, session['threshold'])
             
             #dbutil.update_contracts_id(id, title, content, response)
 

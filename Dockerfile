@@ -7,9 +7,9 @@ WORKDIR /app
 
 ENV DEBUG "True"
 ENV PYTHONUNBUFFERED '1'
-ENV LCA_APP_ENV 'development'  
-ENV GOOGLE_APPLICATION_CREDENTIALS './config/gcp/genuine-wording-key.json'
-ENV AI_SERVICE_URL 'http://34.93.6.90'
+ENV LCA_APP_ENV 'production'  
+ENV GOOGLE_APPLICATION_CREDENTIALS './config/gcp/lca-prod-key.json'
+ENV AI_SERVICE_URL 'http://35.200.208.55'
 
 ENV PORT 8080 
 

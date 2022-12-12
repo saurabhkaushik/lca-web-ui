@@ -11,12 +11,13 @@
             <td><b>Document Risk Chart:</b> <div class="myChartDiv"><canvas id="Context_Gauge_Chart"></canvas></div></td>
             <td><b>Context Count Chart:</b> <div class="myChartDiv"><canvas id="Context_Count_Chart"></canvas></div></td>
             <td><b>Presence Count Chart:</b> <div class="myChartDiv"><canvas id="Presence_Count_Chart"></canvas></div></td>
+            <td><b>Class Strength Chart:</b> <div class="myChartDiv"><canvas id="Class_Strength_Chart"></canvas></div></td>
         </tr>
     </table>
     <h4 align="center">Processed Report : </h4>{{ post['highlight_response'] }} 
     <br><br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
-     
+    <br><br><br><br><br><br><br><br><br>
     
     <script>
         const ctx1 = document.getElementById('Context_Gauge_Chart');      
@@ -75,7 +76,38 @@
             datasets: [{
                 label: 'Presence Count:', 
                 data: label_v,
-                backgroundColor: ["Red", "Yellow", "Green"]
+            }]
+         }
+        });
+
+        const ctx5 = document.getElementById('Class_Strength_Chart');    
+        var label_keys = "{{ post['class_analysis_key'] }}";
+        var label_values = "{{ post['class_analysis_value'] }}";
+
+        let leng11 = label_keys.length;
+        let result11 = label_keys.substring(1, leng11 - 1);
+        var text1 = result11.split(", ");
+
+        let leng22 = label_values.length;
+        let result22 = label_values.substring(1, leng22 - 1);
+        var text2 = result22.split(", ");
+
+        var label_k = []
+        var label_v = []
+        for (i=0;i<text2.length; i++) {            
+            label_k.push(text1[i]) // .substring(1, (text1[i].length - 1))
+            label_v.push(parseInt(text2[i]) )
+        }
+
+        console.log(label_keys)
+        console.log(label_values)
+        new Chart(ctx5, {
+          type: 'bar',
+          data: {
+            labels: label_k,
+            datasets: [{
+                label: 'Class Risk:', 
+                data: label_v,
             }]
          }
         });

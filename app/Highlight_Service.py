@@ -1,6 +1,4 @@
 
-present_base_score = 90 # keyword_threshold
-
 class Highlight_Service:
     def __init__(self) -> None:
         pass
@@ -8,17 +6,17 @@ class Highlight_Service:
     def get_flag(self, score):
         #score = int (((score - present_base_score) / (100 - present_base_score)) * 100)
         flag = ''
-        if score < 30:
+        if score < 40:
             flag = "LOW"
         else:
-            if score >= 30 and score <= 70:
+            if score >= 40 and score <= 80:
                 flag = "MEDIUM"
             else:
-                if score > 70:
+                if score > 80:
                     flag = "HIGH"
         return flag
 
-    def highlight_text(self, hl_index):
+    def highlight_text(self, hl_index, present_base_score):
         processed_text = ""
 
         score_presence_count_total = 0
@@ -26,6 +24,7 @@ class Highlight_Service:
         score_context_medium_count = 0
         score_context_low_count = 0
         score_risk_sents = 0
+        class_analysis = {}
 
         score_presence_count_json = {}
         for key in hl_index:
@@ -36,7 +35,7 @@ class Highlight_Service:
             c_score = int(hl_index[key]['context_score'])
             risk_score = int(hl_index[key]['risk_score'])               
                       
-            if p_score > present_base_score:
+            if p_score >= present_base_score:
                 score_risk_sents += risk_score
                 score_presence_count_total += 1
                 if label in score_presence_count_json.keys(): 
@@ -44,6 +43,12 @@ class Highlight_Service:
                 else: 
                     score_presence_count_json[label] = 1
 
+                if not label in class_analysis.keys():
+                    class_analysis[label]= {'count': 0, 'score': 0}
+                else: 
+                    class_analysis[label]['count'] += 1 
+                    class_analysis[label]['score'] += c_score
+                
                 flag = self.get_flag(c_score) 
 
                 if flag == "HIGH":
@@ -86,7 +91,16 @@ class Highlight_Service:
         score_presence_count_json['label_keys'] = label_keys
         score_presence_count_json['label_values'] = label_values
 
+        class_obj = {}
+        for data in class_analysis: 
+            if class_analysis[data]['count'] == 0:
+                class_analysis[data]['avg'] = 0
+            else: 
+                class_analysis[data]['avg'] = class_analysis[data]['score'] / class_analysis[data]['count']
+            class_obj[data] = class_analysis[data]['avg']
+
+        print('Label Class Strength:', class_obj)
         print ('score_report_json:', score_report_json)
         print ('score_context_count_json:', score_context_count_json)
         print ('score_presence_count_json:', score_presence_count_json)
-        return processed_text, score_report_json, score_context_count_json, score_presence_count_json
+        return processed_text, score_report_json, score_context_count_json, score_presence_count_json, class_obj
