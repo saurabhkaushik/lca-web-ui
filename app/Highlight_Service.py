@@ -52,27 +52,27 @@ class Highlight_Service:
                 flag = self.get_flag(c_score) 
 
                 if flag == "HIGH":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: crimson;\">" + c_sentence + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: crimson;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
+                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: darkorange;\">" + c_sentence + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: darkorange;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
+                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_medium_count += 1
                 elif flag == "LOW":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: gold;\">" + c_sentence + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: gold;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
+                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "% </span></mark></div>"
                     score_context_low_count += 1
             else: 
                 flag = self.get_flag(c_score) 
-                processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\">" + c_sentence + \
-                        "<span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
+                processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
+                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
                         "; Presence Score : " + str(p_score) + "%; Context Score : " + \
                         str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
 

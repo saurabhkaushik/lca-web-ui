@@ -1,0 +1,58 @@
+{% extends 'base-index.html' %}
+
+{% block content %}
+    <h1>{% block title %} Risk Assessment for {{ session['function'].capitalize() }}  {% endblock %}</h1>
+    <H4 align="center">{{ session['function'].capitalize() }} Risk Assessment helps business reduce their {{ session['domain'].capitalize() }} Risk using the power of AI. </h4>
+    <br>
+    <form method="post" action="{{ url_for('set_domain') }}">
+        <H5> Your current domain is <select name="domain" onchange="this.form.submit();">  
+            {% for domain in session['domains'] :%}  
+                {% if domain == session['domain'] : %}                
+                    <option value='{{ domain }}' selected>{{ domain.upper() }}</option>
+                {% else: %}
+                    <option value='{{ domain }}' >{{ domain.upper() }}</option>
+                {% endif %}
+            {% endfor %}
+        </select> </H5>
+    </form>
+    {% include 'contract_new_analyze.html' %}  
+    <form>
+        <div class="container">
+            <input placeholder="Name" type="text" name="Name" />
+            <input placeholder="Job" type="text" name="job" />
+            <input type="submit" /> 
+        </div> 
+        <span class="container"></span> 
+    </form>
+    <div id="postData"></div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('form').on('submit', function(event) {
+                event.preventDefault();
+                
+                // It returns a array of object 
+                let userinfo = $(this).serializeArray();
+                let user = {};
+                userinfo.forEach((value) => {
+                    
+                    // Dynamically create an object
+                    user[value.name] = value.value;
+                });
+                let url = "/training_new";
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: user
+                }).done(function(msg) {                    
+                    // When the request is successful
+                    $('span').text('user is successfully created with Id ' + msg.id);
+                }).fail(function(err, textstatus, error) {
+                    $('span').text(textstatus);
+                });
+                alert('dd')
+            });
+        });
+        </script>
+
+{% endblock %}

@@ -54,7 +54,9 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
     @apps.route('/')
     def index():        
-        set_domain()
+        set_domains()
+        print ('Domain : ', session['domain'])
+        print ('Threshold : ', session['threshold'])
         return render_template('index.html')
 
     @apps.route('/contract_list')
@@ -80,7 +82,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
                 if domain == s_domain: 
                     session['function'] = functions[i]
                     session['threshold'] = domains_threshold[i]
-                    print (session['threshold'])
                 i += 1
         return render_template('index.html')
 
@@ -203,6 +204,28 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             json_resp = jsonify(post)
             print ('Response : ', post)
         return json_resp
+
+    @apps.route('/training_new', methods=('GET', 'POST'))
+    def training_new():
+        s_domain = get_domain()
+        if request.method == 'POST':
+            label = request.form['label']
+            content = request.form['content']
+            print("Contract : " + content + ' Label:' + label)
+            if not content or not label:
+                flash('contract and title is required!')
+            else:
+                batch_insert = []
+                insert_json = {"content": content, "label" : label, "type": "users", "eval_label" : "", "eval_score" : 0,
+                               "score": 0, "domain": s_domain, "userid": "user"}
+                batch_insert.append(insert_json)
+                dbutil.save_training_data_batch(batch_insert)
+
+                print ("New Training added.")
+                response = {"id": 0}
+                return response
+            response = {"id": 0}        
+            return response
     
     @apps.route('/contract_save', methods=('GET', 'POST'))
     def contract_save():
@@ -310,12 +333,18 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         print ('Domain : ', s_domain)
         return s_domain
 
-    def set_domain():  
+    def set_domains():  
         session['domains'] = domains    
         if not 'domain' in session.keys():
             session['domain'] = app_domain 
         if not 'function' in session.keys():
             session['function'] = app_function  
+        if not 'threshold' in session.keys():
+            i = 0
+            for domain in domains: 
+                if domain == session['domain']: 
+                    session['threshold'] = domains_threshold[i]
+                i += 1
         return None
     
     def get_classify_service_response(id, s_domain):

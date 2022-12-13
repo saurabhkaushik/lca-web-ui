@@ -18,24 +18,28 @@
     <br><br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
     <br><br><br><br><br><br><br><br><br>
-    <span id="MSG"></span>
     <script>
         function submitFORM(path, method, params) {
-            //event.preventDefault();
-            formdata = {}
-            formdata['label'] = params['label']
-            formdata['content'] = params['content']
-            let url = "/training_new";
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: formdata
-            }).done(function(msg) {                    
-                // When the request is successful
-                $('#MSG').text('Training data is successfully created.');
-            }).fail(function(err, textstatus, error) {
-                $('#MSG').text(textstatus);
-            });
+            method = method || "post";
+            event.preventDefault();
+
+            var form = document.createElement("form");
+            form.setAttribute("method", method);
+            form.setAttribute("action", path);
+            form._submit_function_ = form.submit;
+
+            for(var key in params) {
+                if(params.hasOwnProperty(key)) {
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", key);
+                    hiddenField.setAttribute("value", params[key]);
+
+                    form.appendChild(hiddenField);
+                }
+            }
+            document.body.appendChild(form);
+            form._submit_function_();
         }
     </script>
     <script>
