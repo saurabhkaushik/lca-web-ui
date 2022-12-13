@@ -6,6 +6,7 @@
     <h4 align="center">Report Name : {{ post['title'] }} </h4> 
     <h4 align="center">Report Risk Score : {{ post['score_report_json']['score_report_risk_score'] }}% </h4>
     <h4 align="center">Report Risk Analytics : </h4>
+    <div align="center">
     <table> 
         <tr align="center">                
             <td><b>Document Risk Chart:</b> <div class="myChartDiv"><canvas id="Context_Gauge_Chart"></canvas></div></td>
@@ -14,11 +15,27 @@
             <td><b>Class Strength Chart:</b> <div class="myChartDiv"><canvas id="Class_Strength_Chart"></canvas></div></td>
         </tr>
     </table>
+    </div>    
     <h4 align="center">Processed Report : </h4>{{ post['highlight_response'] }} 
-    <br><br><b>Date : </b>{{ post['created'] }}
+    <br>
+    <div align="center">
+    <table><tr><td>
+        <b>Risk Legends: </b>
+        <table><tr align="center">
+            <td><mark style="color: white; background-color: crimson;">High</mark></td>
+            <td><mark style="color: white; background-color: darkorange;">Medium</mark></td>
+            <td><mark style="color: black; background-color: gold;">Low</mark></td>
+            <td><mark style="color: black; background-color: white;">NA</mark></td>
+            </tr>
+        </table>
+    </td>
+    <td><b>Machine Learning: </b> If you find prediction to be correct, kindly click on them to make system learn. </td>
+    </tr></table>
+    </div>
+    <br><b>Date : </b>{{ post['created'] }}
     <br><b>User : </b>{{ post['userid'] }}
+    <br><b>Message: </b> <span id="MSG"></span>
     <br><br><br><br><br><br><br><br><br>
-    <span id="MSG"></span>
     <script>
         function submitFORM(path, method, params) {
             //event.preventDefault();
