@@ -25,18 +25,20 @@ class Highlight_Service:
         score_context_low_count = 0
         score_risk_sents = 0
         class_analysis = {}
-
+        highlight_results = []
         score_presence_count_json = {}
         for key in hl_index:
-            c_sentence = hl_index[key]['sentence']
-            label = hl_index[key]['label']   
+            highlight_dict = {}
+            highlight_dict['c_sentence'] = hl_index[key]['sentence']
+            highlight_dict['label'] = hl_index[key]['label']   
+            label = hl_index[key]['label']  
 
-            p_score = int(hl_index[key]['presence_score'])
-            c_score = int(hl_index[key]['context_score'])
-            risk_score = int(hl_index[key]['risk_score'])               
+            highlight_dict['p_score'] = int(hl_index[key]['presence_score'])
+            highlight_dict['c_score'] = int(hl_index[key]['context_score'])
+            highlight_dict['risk_score'] = int(hl_index[key]['risk_score'])               
                       
-            if p_score >= present_base_score:
-                score_risk_sents += risk_score
+            if highlight_dict['p_score'] >= present_base_score:
+                score_risk_sents += highlight_dict['risk_score']
                 score_presence_count_total += 1
                 if label in score_presence_count_json.keys(): 
                     score_presence_count_json[label] += 1
@@ -47,34 +49,20 @@ class Highlight_Service:
                     class_analysis[label]= {'count': 0, 'score': 0}
                 else: 
                     class_analysis[label]['count'] += 1 
-                    class_analysis[label]['score'] += c_score
+                    class_analysis[label]['score'] += highlight_dict['c_score']
                 
-                flag = self.get_flag(c_score) 
-
+                flag = self.get_flag(highlight_dict['c_score']) 
+                highlight_dict['flag'] = flag
                 if flag == "HIGH":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: crimson;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
-                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
-                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_high_count += 1
                 elif flag == "MEDIUM":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: white; background-color: darkorange;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
-                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
-                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
                     score_context_medium_count += 1
                 elif flag == "LOW":
-                    processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: gold;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
-                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
-                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(c_score) + "%; Risk Score : " + str(risk_score) + "% </span></mark></div>"
                     score_context_low_count += 1
             else: 
-                flag = self.get_flag(c_score) 
-                processed_text += "<div class=\"hover-text\"><mark style=\"color: black; background-color: white;\"><span onclick=\"submitFORM('/training_new', 'POST', {'label' : '" + label.lower() + "', 'content': this.textContent})\">" + c_sentence + \
-                        "</span><span class=\"tooltip-text\">Label : \'" + label.lower() + "\'; Risk : " + flag.capitalize() + \
-                        "; Presence Score : " + str(p_score) + "%; Context Score : " + \
-                        str(c_score) + "%; Risk Score : " + str(risk_score) + "%</span></mark></div>"
+                flag = self.get_flag(highlight_dict['c_score']) 
+                highlight_dict['flag'] = 'NA'
+            highlight_results.append(highlight_dict)
 
         # Context Scoring 
         score_report_risk_score = 0
@@ -91,16 +79,21 @@ class Highlight_Service:
         score_presence_count_json['label_keys'] = label_keys
         score_presence_count_json['label_values'] = label_values
 
-        class_obj = {}
+        class_analysis_data = {}
         for data in class_analysis: 
             if class_analysis[data]['count'] == 0:
                 class_analysis[data]['avg'] = 0
             else: 
                 class_analysis[data]['avg'] = class_analysis[data]['score'] / class_analysis[data]['count']
-            class_obj[data] = class_analysis[data]['avg']
+            class_analysis_data[data] = class_analysis[data]['avg']
 
-        print('Label Class Strength:', class_obj)
-        print ('score_report_json:', score_report_json)
-        print ('score_context_count_json:', score_context_count_json)
-        print ('score_presence_count_json:', score_presence_count_json)
-        return processed_text, score_report_json, score_context_count_json, score_presence_count_json, class_obj
+        report_analysis = {}
+        report_analysis['score_report_json'] = score_report_json
+        report_analysis['score_context_count_json'] = score_context_count_json
+        report_analysis['score_presence_count_json'] = score_presence_count_json
+        report_analysis['class_analysis_data'] = class_analysis_data
+        print('Label Class Strength:', report_analysis['class_analysis_data'])
+        print ('score_report_json:', report_analysis['score_report_json'])
+        print ('score_context_count_json:', report_analysis['score_context_count_json'])
+        print ('score_presence_count_json:', report_analysis['score_presence_count_json'])
+        return highlight_results, report_analysis

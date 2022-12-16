@@ -16,7 +16,30 @@
         </tr>
     </table>
     </div>    
-    <h4 align="center">Processed Report : </h4>{{ post['highlight_response'] }} 
+    <h4 align="center">Processed Report : </h4>
+    {% for hl_obj in post['highlight_response'] %}
+        <script> 
+            var label = "{{ hl_obj['label'] }}" 
+        </script>
+        {% if hl_obj['flag'] == 'HIGH' %}
+            <div class="hover-text"><mark style="color: white; background-color: crimson;"><span onclick="submitFORM('/training_new', 'POST', label, this.textContent)"> {{ hl_obj['c_sentence'] }} 
+                </span><span class="tooltip-text">Label : {{ hl_obj['label'] }}; Risk : {{ hl_obj['flag'] }}; 
+                    Presence Score : {{ hl_obj['p_score'] }}%; Context Score : {{ hl_obj['c_score'] }}%; Risk Score : {{ hl_obj['risk_score'] }}%</span></mark></div>
+        {% elif hl_obj['flag'] == 'MEDIUM' %}
+            <div class="hover-text"><mark style="color: white; background-color: darkorange;"><span onclick="submitFORM('/training_new', 'POST', label, this.textContent)"> {{ hl_obj['c_sentence'] }} 
+                </span><span class="tooltip-text">Label : {{ hl_obj['label'] }}; Risk : {{ hl_obj['flag'] }}; 
+                    Presence Score : {{ hl_obj['p_score'] }}%; Context Score : {{ hl_obj['c_score'] }}%; Risk Score : {{ hl_obj['risk_score'] }}%</span></mark></div>
+        {% elif hl_obj['flag'] == 'LOW' %}
+            <div class="hover-text"><mark style="color: black; background-color: gold;"><span onclick="submitFORM('/training_new', 'POST', label, this.textContent)"> {{ hl_obj['c_sentence'] }} 
+                </span><span class="tooltip-text">Label : {{ hl_obj['label'] }}; Risk : {{ hl_obj['flag'] }}; 
+                    Presence Score : {{ hl_obj['p_score'] }}%; Context Score : {{ hl_obj['c_score'] }}%; Risk Score : {{ hl_obj['risk_score'] }}%</span></mark></div>
+        {% else %}
+            <div class="hover-text"><mark style="color: black; background-color: white;"><span onclick="submitFORM('/training_new', 'POST', label, this.textContent)"> {{ hl_obj['c_sentence'] }} 
+            </span><span class="tooltip-text">Label : {{ hl_obj['label'] }}; Risk : {{ hl_obj['flag'] }}; 
+                Presence Score : {{ hl_obj['p_score'] }}%; Context Score : {{ hl_obj['c_score'] }}%; Risk Score : {{ hl_obj['risk_score'] }}%</span></mark></div>
+        {% endif %}
+
+    {% endfor %}
     <br>
     <div align="center">
     <table><tr><td>
@@ -37,11 +60,11 @@
     <br><b>Message: </b> <span id="MSG"></span>
     <br><br><br><br><br><br><br><br><br>
     <script>
-        function submitFORM(path, method, params) {
+        function submitFORM(path, method, label, content) {
             //event.preventDefault();
             formdata = {}
-            formdata['label'] = params['label']
-            formdata['content'] = params['content']
+            formdata['label'] = label
+            formdata['content'] = content
             let url = "/training_new";
             $.ajax({
                 type: "POST",

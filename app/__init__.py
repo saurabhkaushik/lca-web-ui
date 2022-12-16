@@ -25,10 +25,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     apps.secret_key = "LCA"  
     
     domains = apps.config['DOMAINS']
-    domains_threshold = apps.config['DOMAINS_THRESHOLD']
-    functions = apps.config['FUNCTIONS']
-    app_domain = apps.config['DEFAULT_DOMAIN']
-    app_function = apps.config['DEFAULT_FUNCTION']
     classify_url = os.getenv('AI_SERVICE_URL') + "/classify_service"
     db_host = apps.config['DB_HOST']
     db_user = apps.config['DB_USER']
@@ -55,8 +51,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     @apps.route('/')
     def index():        
         set_domains()
-        print ('Domain : ', session['domain'])
-        print ('Threshold : ', session['threshold'])
         return render_template('index.html')
 
     @apps.route('/contract_list')
@@ -78,11 +72,14 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
             s_domain = request.form['domain']
             session['domain'] = s_domain
             i = 0
-            for domain in domains: 
+            for domain in domains.keys(): 
                 if domain == s_domain: 
-                    session['function'] = functions[i]
-                    session['threshold'] = domains_threshold[i]
+                    session['function'] = domains[domain]['function']
+                    session['threshold'] = domains[domain]['threshold']
                 i += 1
+        print ('Domain : ', session['domain'])
+        print ('Function : ', session['function'])
+        print ('Threshold : ', session['threshold'])
         return render_template('index.html')
 
     @apps.route('/contract_new', methods=('GET', 'POST'))
@@ -105,20 +102,18 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
                 if answer == None:
                     answer = ''
-                response, score_report_json, score_context_count_json, score_presence_count_json, class_analysis = highservice.highlight_text(answer, session['threshold'])
-
-                #dbutil.update_contracts_id(id, title, content, response)
+                response, report_analysis = highservice.highlight_text(answer, session['threshold'])
 
                 post = dbutil.get_contracts_id(id)
 
                 for pst in post:
                     post = pst
                 post['highlight_response'] = response
-                post['score_report_json'] = score_report_json
-                post['score_context_count_json'] = score_context_count_json
-                post['score_presence_count_json'] = score_presence_count_json
-                post['class_analysis_key'] = list(class_analysis.keys())
-                post['class_analysis_value'] = list(class_analysis.values())
+                post['score_report_json'] = report_analysis['score_report_json']
+                post['score_context_count_json'] = report_analysis['score_context_count_json']
+                post['score_presence_count_json'] = report_analysis['score_presence_count_json']
+                post['class_analysis_key'] = list(report_analysis['class_analysis_data'].keys())
+                post['class_analysis_value'] = list(report_analysis['class_analysis_data'].values())
                 print ('Post : ', post)
                 return render_template('contract_analysis.html', post=post)
         return render_template('contract_new.html')
@@ -141,18 +136,18 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
-            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer, session['threshold'])
+            response, report_analysis = highservice.highlight_text(answer, session['threshold'])
             
-            #dbutil.update_contracts_id(id, title, content, response)
-
             post = dbutil.get_contracts_id(id)
 
             for pst in post:
                 post = pst
             post['highlight_response'] = response
-            post['score_report_json'] = score_report_json
-            post['score_context_count_json'] = score_context_count_json
-            post['score_presence_count_json'] = score_presence_count_json
+            post['score_report_json'] = report_analysis['score_report_json']
+            post['score_context_count_json'] = report_analysis['score_context_count_json']
+            post['score_presence_count_json'] = report_analysis['score_presence_count_json']
+            post['class_analysis_key'] = list(report_analysis['class_analysis_data'].keys())
+            post['class_analysis_value'] = list(report_analysis['class_analysis_data'].values())
             return render_template('contract_analysis.html', post=post)
         return redirect(url_for('contracts_list'))
 
@@ -186,20 +181,6 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
 
             if answer == None:
                 answer = ''
-            '''             
-            response, score_report_json, score_context_count_json, score_presence_count_json = highservice.highlight_text(answer)
-
-            #dbutil.update_contracts_id(id, title, content, response)
-
-            post = dbutil.get_contracts_id(id)
-
-            for pst in post:
-                post = pst
-            post['score_report_json'] = score_report_json
-            post['score_context_count_json'] = score_context_count_json
-            post['score_presence_count_json'] = score_presence_count_json
-            print ('Post : ', post) 
-            '''
             post = answer
             json_resp = jsonify(post)
             print ('Response : ', post)
@@ -329,22 +310,23 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
         if 'domain' in session: 
             s_domain = session['domain']
         else: 
-            s_domain = app_domain
-        print ('Domain : ', s_domain)
+            s_domain = list(domains.keys())[0] 
         return s_domain
 
     def set_domains():  
-        session['domains'] = domains    
+        session['domains'] = list(domains.keys())   
+        app_domain = next(iter(domains))
         if not 'domain' in session.keys():
-            session['domain'] = app_domain 
-        if not 'function' in session.keys():
-            session['function'] = app_function  
-        if not 'threshold' in session.keys():
+            session['domain'] = app_domain
+            session['function'] = domains[app_domain]['function'] 
             i = 0
-            for domain in domains: 
-                if domain == session['domain']: 
-                    session['threshold'] = domains_threshold[i]
+            for domain in domains.keys(): 
+                if domain == app_domain: 
+                    session['threshold'] = domains[app_domain]['threshold'] 
                 i += 1
+        print ('Domain : ', session['domain'])
+        print ('Function : ', session['function'])
+        print ('Threshold : ', session['threshold'])
         return None
     
     def get_classify_service_response(id, s_domain):
