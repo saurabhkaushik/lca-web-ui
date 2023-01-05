@@ -30,7 +30,7 @@ class Highlight_Service:
         for key in hl_index:
             highlight_dict = {}
             highlight_dict['c_sentence'] = hl_index[key]['sentence']
-            highlight_dict['label'] = hl_index[key]['label']   
+            highlight_dict['label'] = hl_index[key]['label'].capitalize()  
             label = hl_index[key]['label']  
 
             highlight_dict['p_score'] = int(hl_index[key]['presence_score'])
@@ -52,7 +52,7 @@ class Highlight_Service:
                     class_analysis[label]['score'] += highlight_dict['c_score']
                 
                 flag = self.get_flag(highlight_dict['c_score']) 
-                highlight_dict['flag'] = flag
+                highlight_dict['flag'] = flag.capitalize()
                 if flag == "HIGH":
                     score_context_high_count += 1
                 elif flag == "MEDIUM":

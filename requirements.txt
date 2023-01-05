@@ -3,3 +3,4 @@ Flask
 mysql-connector-python
 requests 
 waitress
+flask_cors

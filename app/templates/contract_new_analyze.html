@@ -8,8 +8,12 @@
         <label for="content"><b>Report</b></label>
         <textarea name="content" placeholder="Copy the Report Text" rows="12" cols="50" maxlength="10000"
                   class="form-control">{{ request.form['content'] }}</textarea>
-    </div> 
+    </div>     
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Analyze</button>
+        {% if session['domain'] == 'liabilities' %}
+        <button type="submit" class="btn btn-primary" formaction="{{ url_for('text_analysis') }}">Quantitative Analysis</button>
+        {% endif %}
     </div>
+    
 </form>

@@ -1,0 +1,32 @@
+{% extends 'base-index.html' %}
+{% block content %}
+<h1>{% block title %} Text Analysis {% endblock %}</h1>
+
+{% autoescape false %}
+    <h4 align="center">Report Name : {{ post['title'] }} </h4> 
+    <h4 align="center">Report Risk Analytics : </h4>
+    <h4 align="center">Processed Report : </h4>
+    <table> <tr><th>Sentence</th><th>Label</th><th>Money</th><th>Date</th><th>Verb</th><th>Polarity</th></tr>
+
+    {% for row in post['text_analysis_response'] %}
+        <tr>
+            <td>{{ row['text'] }}</td>
+            <td>{{ row['label'] }}</td>
+            <td>{{ row['c_money'] }}</td>
+            <td>{{ row['c_date'] }} </td>
+            <td>{{ row['verb'] }}</td>
+            <td>{{ row['polarity'] }}</td>
+        </tr>
+    {% endfor%}
+    </table>
+    <br><h4 align="center">Accounting: </h4>
+    <table align="center"><tr><th>Name</th><th>Value</th></tr>
+        {% for dkey in post['report_data'].keys() %}
+        <tr>
+            <td>{{ dkey }}</td>
+            <td>{{ post['report_data'][dkey] }}</td>
+        </tr>
+    {% endfor%}   
+    </table>
+{% endautoescape %}
+{% endblock %}
